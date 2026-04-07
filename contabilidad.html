@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFinance Pro v4.8 - Wealth Manager</title>
+    <title>MyFinance Pro v4.8.1 - Wealth Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -220,7 +220,7 @@
         </div>
     </div>
 
-    <!-- Modal Nueva Categoría (RESTURADO) -->
+    <!-- Modal Nueva Categoría -->
     <div id="modal-cat" class="fixed inset-0 bg-slate-900/60 hidden z-[110] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
             <h3 class="text-xl font-bold mb-6 text-slate-800">Nueva Categoría</h3>
@@ -345,6 +345,14 @@
         let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
         let catChart = null, csvRawData = [], dragSourceIndex = null, currentOpType = 'expense';
 
+        // Helper manual para evitar fallos de zona horaria al pintar en tabla
+        function formatDateDisp(dateStr) {
+            if(!dateStr) return '';
+            const [y, m, d] = dateStr.split('-');
+            const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+            return `${d} ${months[parseInt(m)-1]}`;
+        }
+
         // --- 2. AUTH Y SINCRONIZACIÓN ---
         async function attemptLogin() {
             const user = document.getElementById('login-user').value;
@@ -370,7 +378,6 @@
                 recurring = data.recurring || []; 
                 settings = data.settings || { emergencyFund: 0, minChecking: 0, emergencyAccountId: '', sweepAccountId: '' };
                 
-                // Cargar categorías guardadas en servidor, o usar las por defecto si no hay
                 if(data.categories && data.categories.length > 0) {
                     categories = data.categories;
                 }
@@ -406,11 +413,9 @@
         }
 
         function updateUI() {
-            // Actualizar Fecha
             const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
             document.getElementById('current-month-display').textContent = `${months[currentMonth]} ${currentYear}`;
             
-            // Renderizar Cuentas y Patrimonio
             let netWorth = 0; 
             const container = document.getElementById('accounts-list-container'); 
             container.innerHTML = '';
@@ -434,7 +439,6 @@
             
             document.getElementById('global-balance').textContent = `${netWorth.toFixed(2)} €`;
 
-            // Calcular fondos disponibles para Metas
             let availableForGoals = 0; 
             accounts.forEach(acc => { 
                 if (acc.type === 'savings' || acc.type === 'investment') { 
@@ -452,13 +456,9 @@
             const emergencyAcc = accounts.find(a => a.id === settings.emergencyAccountId);
             document.getElementById('emergency-account-label').textContent = emergencyAcc ? emergencyAcc.name : "Sin vincular";
 
-            // Calcular Totales del Mes Visible
-            const mStart = new Date(currentYear, currentMonth, 1);
-            const mEnd = new Date(currentYear, currentMonth + 1, 0);
-            const thisMonthTxs = transactions.filter(t => { 
-                const d = new Date(t.date); 
-                return d >= mStart && d <= mEnd; 
-            });
+            // CRÍTICO: Filtro por string de fecha para evitar bugs de zonas horarias en los días 31
+            const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const thisMonthTxs = transactions.filter(t => t.date.startsWith(currentMonthStr));
             
             const monthIncome = thisMonthTxs.filter(t=>t.type==='income' && !t.isTransfer).reduce((s,t)=>s+t.amount,0);
             const monthExpense = thisMonthTxs.filter(t=>t.type==='expense' && !t.isTransfer).reduce((s,t)=>s+t.amount,0);
@@ -467,7 +467,6 @@
             document.getElementById('month-expense').textContent = `${monthExpense.toFixed(2)} €`;
             document.getElementById('month-balance').textContent = `${(monthIncome - monthExpense).toFixed(2)} €`;
 
-            // Llamar sub-renders
             renderTable(thisMonthTxs); 
             renderGoalsCascada(availableForGoals); 
             renderCharts(thisMonthTxs);
@@ -484,9 +483,9 @@
             }
             document.getElementById('empty-state').classList.add('hidden');
             
-            tbody.innerHTML = txs.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>`
+            tbody.innerHTML = txs.sort((a,b) => b.date.localeCompare(a.date)).map(t=>`
                 <tr class="hover:bg-slate-50 group">
-                    <td class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase">${new Date(t.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</td>
+                    <td class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase">${formatDateDisp(t.date)}</td>
                     <td class="px-8 py-4">
                         <div class="text-sm font-bold text-slate-800">${t.description}</div>
                         <div class="text-[9px] text-slate-400 font-bold uppercase">${accounts.find(a=>a.id===t.accountId)?.name || '...'} • ${t.category}</div>
@@ -576,7 +575,7 @@
             document.getElementById('category').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
         }
 
-        // --- 4. CATEGORÍAS (FUNCIONES RESTAURADAS) ---
+        // --- 4. CATEGORÍAS ---
         function toggleCatModal() { 
             document.getElementById('modal-cat').classList.toggle('hidden'); 
         }
@@ -588,10 +587,9 @@
                 categories.push(name);
                 nameInput.value = '';
                 updateSelects();
-                saveData(); // Persistir la categoría en backend
+                saveData();
                 toggleCatModal();
                 
-                // Si se estaba editando una transacción, seleccionar la nueva categoría automáticamente
                 const catSelect = document.getElementById('category');
                 if(catSelect) catSelect.value = name;
                 
@@ -635,7 +633,7 @@
                 
                 setOpType(tx.type);
                 typeSelector.classList.remove('opacity-40', 'pointer-events-none');
-                recCheck.classList.add('hidden'); // No permitir hacer recurrente al editar
+                recCheck.classList.add('hidden');
             } else {
                 title.textContent = "Registrar Movimiento";
                 editId.value = "";
@@ -656,7 +654,6 @@
             const date = document.getElementById('date').value;
 
             if (editId) {
-                // Edición
                 const idx = transactions.findIndex(t => t.id == editId);
                 const oldTx = transactions[idx];
                 
@@ -670,7 +667,6 @@
                 }
                 showToast("Actualizado correctamente");
             } else {
-                // Nuevo
                 if (document.getElementById('is-recurring-template').checked) {
                     recurring.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, accountId: accId });
                 }
@@ -829,8 +825,8 @@
         // --- 7. AUTOMATIZACIÓN ---
         function checkAutomation() { 
             const alert = document.getElementById('automation-alert');
-            const mS = new Date(currentYear, currentMonth, 1);
-            const done = transactions.filter(t => new Date(t.date) >= mS);
+            const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const done = transactions.filter(t => t.date.startsWith(currentMonthStr));
             
             const missingRecurring = recurring.some(r => !done.some(d => d.description === r.description));
             const mainChecking = accounts.find(a => a.id === settings.sweepAccountId);
@@ -840,8 +836,9 @@
         }
 
         async function applyAutomation() {
-            const mS = new Date(currentYear, currentMonth, 1), ds = `${currentYear}-${(currentMonth+1).toString().padStart(2,'0')}-01`;
-            const done = transactions.filter(t=>new Date(t.date) >= mS);
+            const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const ds = `${currentMonthStr}-01`;
+            const done = transactions.filter(t => t.date.startsWith(currentMonthStr));
             
             // Recurrentes
             recurring.forEach(r => { 
@@ -855,7 +852,7 @@
                 if(acc.performance > 0) {
                     const desc = `Rendimiento: ${acc.name} (${currentMonth+1}/${currentYear})`;
                     if(!done.some(d => d.description === desc)) {
-                        const prev = transactions.filter(t => new Date(t.date) < mS && t.accountId === acc.id).reduce((s,t) => s+(t.type==='income'?t.amount:-t.amount), 0);
+                        const prev = transactions.filter(t => t.date < currentMonthStr && t.accountId === acc.id).reduce((s,t) => s+(t.type==='income'?t.amount:-t.amount), 0);
                         if(prev > 0) {
                             transactions.push({id: Date.now() + Math.random(), description: desc, amount: (prev*(acc.performance/100))/12, type: 'income', category: 'Inversión', date: ds, accountId: acc.id});
                         }
