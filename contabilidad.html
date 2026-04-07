@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFinance Pro v5.0 - Planner Edition</title>
+    <title>MyFinance Pro v5.1 - Time Travel Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -382,6 +382,12 @@
             return `${d} ${months[parseInt(m)-1]}`;
         }
 
+        // Devuelve fecha YYYY-MM-DD del último día del mes y año indicados
+        function getUpToDateStr(y, m) {
+            const d = new Date(y, m + 1, 0);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
         // --- 2. AUTH Y SINCRONIZACIÓN ---
         async function attemptLogin() {
             const user = document.getElementById('login-user').value;
@@ -427,20 +433,13 @@
             } catch(e) { showToast("Error de sincronización", "red"); }
         }
 
-        // --- 3. MODO PLANIFICACIÓN (NUEVO) ---
+        // --- 3. MODO PLANIFICACIÓN ---
         function setViewMode(mode) {
             viewMode = mode;
-            
-            // UI Toggle Desktop
-            const btnReal = document.getElementById('btn-mode-real');
-            const btnPlan = document.getElementById('btn-mode-plan');
-            // UI Toggle Mobile
-            const btnRealM = document.getElementById('btn-mode-real-mobile');
-            const btnPlanM = document.getElementById('btn-mode-plan-mobile');
+            const btnReal = document.getElementById('btn-mode-real'), btnPlan = document.getElementById('btn-mode-plan');
+            const btnRealM = document.getElementById('btn-mode-real-mobile'), btnPlanM = document.getElementById('btn-mode-plan-mobile');
 
-            const activeClass = 'bg-emerald-500/20 text-emerald-400';
-            const activePlanClass = 'bg-indigo-500/20 text-indigo-400';
-            const inactiveClass = 'text-slate-500 hover:text-slate-300';
+            const activeClass = 'bg-emerald-500/20 text-emerald-400', activePlanClass = 'bg-indigo-500/20 text-indigo-400', inactiveClass = 'text-slate-500 hover:text-slate-300';
 
             if(mode === 'real') {
                 btnReal.className = `text-[10px] font-black uppercase px-3 py-1 rounded-lg transition-all ${activeClass}`;
@@ -457,33 +456,32 @@
                 document.getElementById('patrimonio-label').textContent = "Patrimonio Proyectado";
                 document.getElementById('table-title').textContent = "Movimientos (Incluye Previsiones)";
             }
-            
             updateUI();
         }
 
         function getActiveTransactions() {
-            // En modo real, filtramos todo lo que tenga isPlanned = true
             return viewMode === 'real' ? transactions.filter(t => !t.isPlanned) : transactions;
         }
 
         // --- 4. UI Y RENDERIZADO PRINCIPAL ---
-        function calculateBalance(id, txsArray) { 
-            return txsArray.filter(t => t.accountId === id).reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0); 
+        function calculateBalance(id, txsArray, upToDateStr) { 
+            // CUIDADO: Solo suma movimientos de la cuenta hasta la fecha límite
+            return txsArray.filter(t => t.accountId === id && t.date <= upToDateStr).reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0); 
         }
 
         function updateUI() {
             const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
             document.getElementById('current-month-display').textContent = `${months[currentMonth]} ${currentYear}`;
             
-            // Obtener array de transacciones según el modo actual
             const activeTxs = getActiveTransactions();
+            const upToDateStr = getUpToDateStr(currentYear, currentMonth);
 
             let netWorth = 0; 
             const container = document.getElementById('accounts-list-container'); 
             container.innerHTML = '';
             
             accounts.forEach(acc => {
-                const bal = calculateBalance(acc.id, activeTxs); 
+                const bal = calculateBalance(acc.id, activeTxs, upToDateStr); 
                 netWorth += bal;
                 container.innerHTML += `
                     <div class="glass-card p-4 rounded-2xl border-l-4 ${acc.type === 'checking' ? 'border-indigo-500' : 'border-emerald-500'} ${viewMode === 'planned' ? 'border-dashed' : ''}">
@@ -504,7 +502,7 @@
             let availableForGoals = 0; 
             accounts.forEach(acc => { 
                 if (acc.type === 'savings' || acc.type === 'investment') { 
-                    let bal = calculateBalance(acc.id, activeTxs); 
+                    let bal = calculateBalance(acc.id, activeTxs, upToDateStr); 
                     if (acc.id === settings.emergencyAccountId) bal = Math.max(0, bal - settings.emergencyFund); 
                     availableForGoals += bal; 
                 } 
@@ -525,7 +523,6 @@
             document.getElementById('month-expense').textContent = `${monthExpense.toFixed(2)} €`;
             document.getElementById('month-balance').textContent = `${(monthIncome - monthExpense).toFixed(2)} €`;
 
-            // Estilos visuales de dashboard según modo
             ['card-income', 'card-expense', 'card-balance'].forEach(id => {
                 if(viewMode === 'planned') document.getElementById(id).classList.add('border-dashed', 'bg-slate-50/50');
                 else document.getElementById(id).classList.remove('border-dashed', 'bg-slate-50/50');
@@ -568,7 +565,6 @@
                 </tr>`).join('');
         }
 
-        // CONFIRMAR PREVISIÓN
         function confirmPlannedTransaction(id) {
             const tx = transactions.find(t => t.id === id);
             if(tx) {
@@ -782,7 +778,7 @@
                 const newAcc = { id: 'acc_' + Date.now(), name, type, performance: perf };
                 accounts.push(newAcc);
                 const init = parseFloat(document.getElementById('acc-initial-balance').value) || 0;
-                if (init !== 0) transactions.push({ id: Date.now(), description: 'Saldo Inicial', amount: Math.abs(init), type: init > 0 ? 'income' : 'expense', category: 'Otros', date: new Date().toISOString().split('T')[0], accountId: newAcc.id });
+                if (init !== 0) transactions.push({ id: Date.now(), description: 'Saldo Inicial', amount: Math.abs(init), type: init > 0 ? 'income' : 'expense', category: 'Otros', date: new Date().toISOString().split('T')[0], accountId: newAcc.id, isPlanned: false });
             }
             saveData(); toggleAccountModal();
         }
@@ -794,16 +790,26 @@
             if(n && t) { goals.push({id:Date.now(), name:n, target:t}); document.getElementById('goal-name').value=''; document.getElementById('goal-target').value=''; saveData(); toggleGoalModal(); } 
         }
         function deleteGoal(id) { goals = goals.filter(g=>g.id!=id); saveData(); }
+        
         function completeGoal(id, name, amount) { 
             const acc = accounts.find(a => a.id === settings.emergencyAccountId) || accounts.find(a => a.type === 'savings'); 
             if(!acc) return showToast("No hay cuenta de ahorro disponible para pagar", "red"); 
-            if(confirm(`¿Cobrar meta? Se registrará un gasto de ${amount}€ en ${acc.name}`)) { 
-                transactions.push({ id: Date.now(), description: `Logro completado: ${name}`, amount, type: 'expense', category: 'Metas', date: new Date().toISOString().split('T')[0], accountId: acc.id }); 
+            
+            let txDate = new Date().toISOString().split('T')[0];
+            const today = new Date();
+            // Si cobramos en un mes futuro planificado, apuntamos al día 1 de ese mes
+            if (currentYear > today.getFullYear() || (currentYear === today.getFullYear() && currentMonth > today.getMonth())) {
+                txDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+            }
+
+            if(confirm(`¿Cobrar meta? Se registrará un gasto de ${amount}€ en ${acc.name} con fecha ${formatDateDisp(txDate)}`)) { 
+                transactions.push({ id: Date.now(), description: `Logro completado: ${name}`, amount, type: 'expense', category: 'Metas', date: txDate, accountId: acc.id, isPlanned: false }); 
                 goals = goals.filter(g => g.id !== id); 
                 saveData();
                 showToast("¡ENHORABUENA! META COMPLETADA", "emerald"); 
             } 
         }
+
         function handleDrop(e, tIdx) { e.preventDefault(); if (dragSourceIndex === tIdx) return; const temp = goals.splice(dragSourceIndex, 1)[0]; goals.splice(tIdx, 0, temp); saveData(); }
 
         function toggleSettingsModal() { 
@@ -876,9 +882,8 @@
                 let dp = row[dI].split(/[\/\-\.]/), dateIso = dp.length === 3 ? (dp[0].length===4 ? `${dp[0]}-${dp[1]}-${dp[2]}` : `${dp[2]}-${dp[1]}-${dp[0]}`) : row[dI];
                 const desc = row[cI] || "Importación Bancaria";
                 
-                // CRÍTICO: El filtro de duplicados CSV ignora pre-planificaciones, solo busca si ya hay un movimiento REAL igual
+                // Ignorar planificaciones previas al buscar duplicados de operaciones reales
                 if (!transactions.some(t => !t.isPlanned && t.accountId === accId && Math.abs(t.amount) === Math.abs(amt) && t.date === dateIso && t.description === desc)) {
-                    // Se importan siempre como isPlanned: false
                     transactions.push({ id: Date.now() + Math.random(), description: desc, amount: Math.abs(amt), type: amt >= 0 ? 'income' : 'expense', category: 'Importado', date: dateIso, accountId: accId, isPlanned: false });
                     count++;
                 } else {
@@ -892,18 +897,32 @@
         // --- 8. AUTOMATIZACIÓN ---
         function checkAutomation() { 
             const alert = document.getElementById('automation-alert');
+            const today = new Date();
+            
+            // NO permitir ejecutar automatizaciones de meses que aún no han empezado
+            if (currentYear > today.getFullYear() || (currentYear === today.getFullYear() && currentMonth > today.getMonth())) {
+                if(alert) alert.classList.add('hidden');
+                return;
+            }
+
             const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-            // Verificamos si faltan automatismos usando TODAS las transacciones para no duplicar si algo está planificado
             const done = transactions.filter(t => t.date.startsWith(currentMonthStr));
             
             const missingRecurring = recurring.some(r => !done.some(d => d.description === r.description));
             const mainChecking = accounts.find(a => a.id === settings.sweepAccountId);
-            const needsSweep = mainChecking && settings.minChecking > 0 && calculateBalance(mainChecking.id, transactions) > settings.minChecking;
+            
+            const upToDateStr = getUpToDateStr(currentYear, currentMonth);
+            const needsSweep = mainChecking && settings.minChecking > 0 && calculateBalance(mainChecking.id, transactions, upToDateStr) > settings.minChecking;
             
             if(alert) alert.classList.toggle('hidden', !(missingRecurring || needsSweep));
         }
 
         async function applyAutomation() {
+            const today = new Date();
+            if (currentYear > today.getFullYear() || (currentYear === today.getFullYear() && currentMonth > today.getMonth())) {
+                return showToast("No se puede automatizar un mes futuro en modo real", "red");
+            }
+
             const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
             const ds = `${currentMonthStr}-01`;
             const done = transactions.filter(t => t.date.startsWith(currentMonthStr));
@@ -929,7 +948,8 @@
             const src = accounts.find(a => a.id === settings.sweepAccountId);
             const tgt = accounts.find(a => a.id === settings.emergencyAccountId) || accounts.find(a => a.type === 'savings');
             if(src && tgt && settings.minChecking > 0) { 
-                const bal = calculateBalance(src.id, transactions.filter(t=>!t.isPlanned)); // Barrido solo sobre dinero real
+                const upToDateStr = getUpToDateStr(currentYear, currentMonth);
+                const bal = calculateBalance(src.id, transactions.filter(t=>!t.isPlanned), upToDateStr); 
                 if(bal > settings.minChecking) { 
                     const diff = bal - settings.minChecking, tid = Date.now(); 
                     transactions.push({id: tid, description: 'Barrido Automático a Ahorro', amount: diff, type: 'expense', category: 'Traspaso', date: ds, accountId: src.id, isTransfer: true, isPlanned: false}); 
