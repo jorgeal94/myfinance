@@ -1,0 +1,19 @@
+Dependencias
+
+node_modules/
+
+Datos sensibles y base de datos (¡IMPORTANTE!)
+
+No subir los datos financieros reales a GitHub
+
+data/
+*.json
+!package.json
+
+Logs
+
+npm-debug.log*
+
+Entorno
+
+.env

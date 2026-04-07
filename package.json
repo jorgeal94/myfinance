@@ -1,0 +1,14 @@
+{
+  "name": "myfinance-wealth-server",
+  "version": "1.0.0",
+  "description": "Gestor de finanzas personales avanzado con soporte Docker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "author": "MyFinance Team",
+  "license": "ISC"
+}

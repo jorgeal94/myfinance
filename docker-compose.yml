@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  finance-app:
+    build: .
+    container_name: myfinance_pro
+    ports:
+      - "3000:3000"
+    environment:
+      - FINANCE_USER=${FINANCE_USER:-admin}    # Cambiar en Dockge/env
+      - FINANCE_PASS=${FINANCE_PASS:-admin123} # Cambiar en Dockge/env
+      - PORT=3000
+    volumes:
+      - ./data:/usr/src/app/data              # Persistencia de datos local
+    restart: unless-stopped
