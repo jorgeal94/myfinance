@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFinance Pro v4.8.1 - Wealth Manager</title>
+    <title>MyFinance Pro v5.0 - Planner Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,6 +16,7 @@
         #login-overlay { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); }
         .drop-zone { border: 2px dashed #e2e8f0; transition: all 0.2s; }
         .drop-zone.active { border-color: #6366f1; background: #f5f3ff; }
+        .mode-transition { transition: all 0.3s ease; }
     </style>
 </head>
 <body class="min-h-screen pb-10">
@@ -38,21 +39,38 @@
     <div id="app-content" class="opacity-0 transition-opacity duration-500">
         <nav class="bg-slate-900 text-white p-4 shadow-xl sticky top-0 z-50">
             <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                <h1 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fas fa-vault text-indigo-400"></i> MyFinance <span class="text-indigo-400">Wealth</span>
-                </h1>
+                <div class="flex items-center gap-6">
+                    <h1 class="text-xl font-bold flex items-center gap-2">
+                        <i class="fas fa-vault text-indigo-400"></i> MyFinance <span class="text-indigo-400">Wealth</span>
+                    </h1>
+                    
+                    <!-- TOGGLE MODO PLANIFICACIÓN -->
+                    <div class="hidden md:flex items-center gap-3 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+                        <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Vista:</span>
+                        <button id="btn-mode-real" onclick="setViewMode('real')" class="text-[10px] font-black uppercase px-3 py-1 rounded-lg transition-all bg-emerald-500/20 text-emerald-400">Real</button>
+                        <button id="btn-mode-plan" onclick="setViewMode('planned')" class="text-[10px] font-black uppercase px-3 py-1 rounded-lg transition-all text-slate-500 hover:text-slate-300">Planificación</button>
+                    </div>
+                </div>
+
                 <div class="flex items-center gap-4 bg-slate-800 rounded-xl px-4 py-1.5 shadow-inner border border-slate-700">
                     <button onclick="changeMonth(-1)" class="hover:text-indigo-400 transition-colors"><i class="fas fa-chevron-left"></i></button>
                     <span id="current-month-display" class="font-bold min-w-[140px] text-center capitalize text-sm"></span>
                     <button onclick="changeMonth(1)" class="hover:text-indigo-400 transition-colors"><i class="fas fa-chevron-right"></i></button>
                 </div>
+
                 <div class="text-right flex items-center gap-4">
                     <div>
-                        <p class="text-[9px] opacity-50 uppercase font-black tracking-widest">Patrimonio Neto</p>
-                        <p id="global-balance" class="text-lg font-bold text-indigo-400">0.00 €</p>
+                        <p class="text-[9px] opacity-50 uppercase font-black tracking-widest" id="patrimonio-label">Patrimonio Real</p>
+                        <p id="global-balance" class="text-lg font-bold text-indigo-400 mode-transition">0.00 €</p>
                     </div>
                     <button onclick="logout()" class="text-slate-400 hover:text-white transition-colors ml-2" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
+            </div>
+            
+            <!-- Mobile Mode Toggle -->
+            <div class="md:hidden flex justify-center mt-4 gap-2 bg-slate-800 p-2 rounded-xl border border-slate-700">
+                <button id="btn-mode-real-mobile" onclick="setViewMode('real')" class="flex-1 text-[10px] font-black uppercase px-3 py-2 rounded-lg transition-all bg-emerald-500/20 text-emerald-400">Real</button>
+                <button id="btn-mode-plan-mobile" onclick="setViewMode('planned')" class="flex-1 text-[10px] font-black uppercase px-3 py-2 rounded-lg transition-all text-slate-500">Planificación</button>
             </div>
         </nav>
 
@@ -100,16 +118,16 @@
                 <!-- Main Section -->
                 <div class="lg:col-span-3 space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                        <div class="glass-card p-6 rounded-3xl border-b-4 border-emerald-500">
-                            <p class="text-[10px] text-slate-400 font-black uppercase">Ingresos Mes</p>
+                        <div class="glass-card p-6 rounded-3xl border-b-4 border-emerald-500 mode-transition" id="card-income">
+                            <p class="text-[10px] text-slate-400 font-black uppercase" id="label-income">Ingresos Mes</p>
                             <h3 id="month-income" class="text-3xl font-bold text-slate-800">0.00 €</h3>
                         </div>
-                        <div class="glass-card p-6 rounded-3xl border-b-4 border-rose-500">
-                            <p class="text-[10px] text-slate-400 font-black uppercase">Gastos Mes</p>
+                        <div class="glass-card p-6 rounded-3xl border-b-4 border-rose-500 mode-transition" id="card-expense">
+                            <p class="text-[10px] text-slate-400 font-black uppercase" id="label-expense">Gastos Mes</p>
                             <h3 id="month-expense" class="text-3xl font-bold text-slate-800">0.00 €</h3>
                         </div>
-                        <div class="glass-card p-6 rounded-3xl border-b-4 border-indigo-500 bg-indigo-50/30">
-                            <p class="text-[10px] text-indigo-400 font-black uppercase">Balance Mes</p>
+                        <div class="glass-card p-6 rounded-3xl border-b-4 border-indigo-500 bg-indigo-50/30 mode-transition" id="card-balance">
+                            <p class="text-[10px] text-indigo-400 font-black uppercase" id="label-balance">Balance Mes</p>
                             <h3 id="month-balance" class="text-3xl font-bold text-indigo-700">0.00 €</h3>
                         </div>
                     </div>
@@ -134,7 +152,7 @@
 
                     <section class="glass-card rounded-3xl overflow-hidden shadow-sm">
                         <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                            <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest">Historial del Periodo</h2>
+                            <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest" id="table-title">Movimientos del Periodo</h2>
                             <button onclick="openTransactionModal()" class="bg-indigo-600 text-white text-[10px] px-4 py-2 rounded-xl font-black uppercase hover:bg-indigo-700 transition-colors">+ Manual</button>
                         </div>
                         <div class="overflow-x-auto">
@@ -194,7 +212,6 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <!-- Botón para añadir nueva categoría -->
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-[10px] font-black text-slate-400 uppercase">Categoría</label>
                             <button type="button" onclick="toggleCatModal()" class="text-[10px] text-indigo-600 font-bold hover:underline hover:text-indigo-800 transition-colors">+ Nueva</button>
@@ -207,9 +224,18 @@
                     </div>
                 </div>
 
+                <!-- CHECKBOX PLANIFICACIÓN -->
+                <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl mt-2">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="is-planned-tx" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+                        <label for="is-planned-tx" class="text-xs text-indigo-700 font-bold cursor-pointer">Guardar como Previsión Futura</label>
+                    </div>
+                    <p class="text-[9px] text-indigo-400 mt-1 italic ml-6">No afectará a tu saldo real hasta que lo confirmes. Ideal para planificar el mes.</p>
+                </div>
+
                 <div id="recurring-check-container" class="flex items-center gap-2 py-2">
                     <input type="checkbox" id="is-recurring-template" class="w-4 h-4 text-indigo-600 rounded">
-                    <label for="is-recurring-template" class="text-xs text-slate-500 font-bold italic">Guardar como movimiento recurrente</label>
+                    <label for="is-recurring-template" class="text-xs text-slate-500 font-bold italic">Guardar como gasto fijo mensual</label>
                 </div>
 
                 <div class="flex gap-3 pt-2">
@@ -315,6 +341,7 @@
                 <div class="border rounded-2xl overflow-hidden max-h-40 overflow-y-auto">
                     <table class="w-full text-[10px]"><tbody id="csv-preview-body" class="divide-y"></tbody></table>
                 </div>
+                <p class="text-xs text-slate-400 text-center italic">Los movimientos importados se marcarán siempre como "Reales".</p>
                 <button onclick="processCsv()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black uppercase transition-colors">Importar Movimientos</button>
             </div>
             <button onclick="toggleCsvModal()" class="w-full mt-4 text-slate-400 font-bold text-xs uppercase">Cancelar</button>
@@ -324,7 +351,7 @@
     <!-- Modal Nueva Meta -->
     <div id="modal-goal" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
-            <h3 class="text-xl font-bold mb-6">Nueva Meta</h3>
+            <h3 class="text-xl font-bold mb-6">Nueva Meta de Ahorro</h3>
             <div class="space-y-4">
                 <input type="text" id="goal-name" placeholder="Nombre de la meta" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
                 <input type="number" id="goal-target" placeholder="Importe total (€)" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
@@ -344,8 +371,10 @@
         let categories = ['Sueldo', 'Vivienda', 'Alimentación', 'Suministros', 'Inversión', 'Ocio', 'Salud', 'Transporte', 'Otros', 'Importado'];
         let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
         let catChart = null, csvRawData = [], dragSourceIndex = null, currentOpType = 'expense';
+        
+        // MODO VISTA: 'real' o 'planned'
+        let viewMode = 'real'; 
 
-        // Helper manual para evitar fallos de zona horaria al pintar en tabla
         function formatDateDisp(dateStr) {
             if(!dateStr) return '';
             const [y, m, d] = dateStr.split('-');
@@ -361,10 +390,7 @@
             fetchData();
         }
 
-        function logout() { 
-            localStorage.removeItem('finance_auth'); 
-            location.reload(); 
-        }
+        function logout() { localStorage.removeItem('finance_auth'); location.reload(); }
 
         async function fetchData() {
             try {
@@ -378,9 +404,7 @@
                 recurring = data.recurring || []; 
                 settings = data.settings || { emergencyFund: 0, minChecking: 0, emergencyAccountId: '', sweepAccountId: '' };
                 
-                if(data.categories && data.categories.length > 0) {
-                    categories = data.categories;
-                }
+                if(data.categories && data.categories.length > 0) categories = data.categories;
 
                 localStorage.setItem('finance_auth', authString);
                 document.getElementById('login-overlay').classList.add('hidden');
@@ -388,9 +412,7 @@
                 
                 updateSelects(); 
                 updateUI(); 
-            } catch (e) { 
-                document.getElementById('login-error').classList.remove('hidden'); 
-            }
+            } catch (e) { document.getElementById('login-error').classList.remove('hidden'); }
         }
 
         async function saveData() {
@@ -402,29 +424,69 @@
                 });
                 updateSelects();
                 updateUI();
-            } catch(e) {
-                showToast("Error de sincronización", "red");
-            }
+            } catch(e) { showToast("Error de sincronización", "red"); }
         }
 
-        // --- 3. UI Y RENDERIZADO PRINCIPAL ---
-        function calculateBalance(id) { 
-            return transactions.filter(t => t.accountId === id).reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0); 
+        // --- 3. MODO PLANIFICACIÓN (NUEVO) ---
+        function setViewMode(mode) {
+            viewMode = mode;
+            
+            // UI Toggle Desktop
+            const btnReal = document.getElementById('btn-mode-real');
+            const btnPlan = document.getElementById('btn-mode-plan');
+            // UI Toggle Mobile
+            const btnRealM = document.getElementById('btn-mode-real-mobile');
+            const btnPlanM = document.getElementById('btn-mode-plan-mobile');
+
+            const activeClass = 'bg-emerald-500/20 text-emerald-400';
+            const activePlanClass = 'bg-indigo-500/20 text-indigo-400';
+            const inactiveClass = 'text-slate-500 hover:text-slate-300';
+
+            if(mode === 'real') {
+                btnReal.className = `text-[10px] font-black uppercase px-3 py-1 rounded-lg transition-all ${activeClass}`;
+                btnPlan.className = `text-[10px] font-black uppercase px-3 py-1 rounded-lg transition-all ${inactiveClass}`;
+                btnRealM.className = `flex-1 text-[10px] font-black uppercase px-3 py-2 rounded-lg transition-all ${activeClass}`;
+                btnPlanM.className = `flex-1 text-[10px] font-black uppercase px-3 py-2 rounded-lg transition-all ${inactiveClass}`;
+                document.getElementById('patrimonio-label').textContent = "Patrimonio Real";
+                document.getElementById('table-title').textContent = "Historial del Periodo";
+            } else {
+                btnReal.className = `text-[10px] font-black uppercase px-3 py-1 rounded-lg transition-all ${inactiveClass}`;
+                btnPlan.className = `text-[10px] font-black uppercase px-3 py-1 rounded-lg transition-all ${activePlanClass}`;
+                btnRealM.className = `flex-1 text-[10px] font-black uppercase px-3 py-2 rounded-lg transition-all ${inactiveClass}`;
+                btnPlanM.className = `flex-1 text-[10px] font-black uppercase px-3 py-2 rounded-lg transition-all ${activePlanClass}`;
+                document.getElementById('patrimonio-label').textContent = "Patrimonio Proyectado";
+                document.getElementById('table-title').textContent = "Movimientos (Incluye Previsiones)";
+            }
+            
+            updateUI();
+        }
+
+        function getActiveTransactions() {
+            // En modo real, filtramos todo lo que tenga isPlanned = true
+            return viewMode === 'real' ? transactions.filter(t => !t.isPlanned) : transactions;
+        }
+
+        // --- 4. UI Y RENDERIZADO PRINCIPAL ---
+        function calculateBalance(id, txsArray) { 
+            return txsArray.filter(t => t.accountId === id).reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0); 
         }
 
         function updateUI() {
             const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
             document.getElementById('current-month-display').textContent = `${months[currentMonth]} ${currentYear}`;
             
+            // Obtener array de transacciones según el modo actual
+            const activeTxs = getActiveTransactions();
+
             let netWorth = 0; 
             const container = document.getElementById('accounts-list-container'); 
             container.innerHTML = '';
             
             accounts.forEach(acc => {
-                const bal = calculateBalance(acc.id); 
+                const bal = calculateBalance(acc.id, activeTxs); 
                 netWorth += bal;
                 container.innerHTML += `
-                    <div class="glass-card p-4 rounded-2xl border-l-4 ${acc.type === 'checking' ? 'border-indigo-500' : 'border-emerald-500'}">
+                    <div class="glass-card p-4 rounded-2xl border-l-4 ${acc.type === 'checking' ? 'border-indigo-500' : 'border-emerald-500'} ${viewMode === 'planned' ? 'border-dashed' : ''}">
                         <div class="flex justify-between items-start">
                             <div><span class="text-[9px] font-bold uppercase text-slate-400">${acc.type}</span></div>
                             <div class="flex gap-2">
@@ -433,7 +495,7 @@
                             </div>
                         </div>
                         <h4 class="text-xs font-bold text-slate-700 mt-1">${acc.name}</h4>
-                        <p class="mt-1 text-lg font-black">${bal.toFixed(2)} €</p>
+                        <p class="mt-1 text-lg font-black ${viewMode === 'planned' ? 'text-indigo-500' : ''}">${bal.toFixed(2)} €</p>
                     </div>`;
             });
             
@@ -442,23 +504,19 @@
             let availableForGoals = 0; 
             accounts.forEach(acc => { 
                 if (acc.type === 'savings' || acc.type === 'investment') { 
-                    let bal = calculateBalance(acc.id); 
-                    if (acc.id === settings.emergencyAccountId) {
-                        bal = Math.max(0, bal - settings.emergencyFund); 
-                    }
+                    let bal = calculateBalance(acc.id, activeTxs); 
+                    if (acc.id === settings.emergencyAccountId) bal = Math.max(0, bal - settings.emergencyFund); 
                     availableForGoals += bal; 
                 } 
             });
             
             document.getElementById('available-savings-display').textContent = `${availableForGoals.toFixed(2)} €`;
             document.getElementById('reserve-display').textContent = `${(settings.emergencyFund || 0).toFixed(2)} €`;
-
             const emergencyAcc = accounts.find(a => a.id === settings.emergencyAccountId);
             document.getElementById('emergency-account-label').textContent = emergencyAcc ? emergencyAcc.name : "Sin vincular";
 
-            // CRÍTICO: Filtro por string de fecha para evitar bugs de zonas horarias en los días 31
             const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-            const thisMonthTxs = transactions.filter(t => t.date.startsWith(currentMonthStr));
+            const thisMonthTxs = activeTxs.filter(t => t.date.startsWith(currentMonthStr));
             
             const monthIncome = thisMonthTxs.filter(t=>t.type==='income' && !t.isTransfer).reduce((s,t)=>s+t.amount,0);
             const monthExpense = thisMonthTxs.filter(t=>t.type==='expense' && !t.isTransfer).reduce((s,t)=>s+t.amount,0);
@@ -466,6 +524,12 @@
             document.getElementById('month-income').textContent = `${monthIncome.toFixed(2)} €`;
             document.getElementById('month-expense').textContent = `${monthExpense.toFixed(2)} €`;
             document.getElementById('month-balance').textContent = `${(monthIncome - monthExpense).toFixed(2)} €`;
+
+            // Estilos visuales de dashboard según modo
+            ['card-income', 'card-expense', 'card-balance'].forEach(id => {
+                if(viewMode === 'planned') document.getElementById(id).classList.add('border-dashed', 'bg-slate-50/50');
+                else document.getElementById(id).classList.remove('border-dashed', 'bg-slate-50/50');
+            });
 
             renderTable(thisMonthTxs); 
             renderGoalsCascada(availableForGoals); 
@@ -484,20 +548,34 @@
             document.getElementById('empty-state').classList.add('hidden');
             
             tbody.innerHTML = txs.sort((a,b) => b.date.localeCompare(a.date)).map(t=>`
-                <tr class="hover:bg-slate-50 group">
+                <tr class="hover:bg-slate-50 group border-b border-slate-50 last:border-0 ${t.isPlanned ? 'bg-indigo-50/30' : ''}">
                     <td class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase">${formatDateDisp(t.date)}</td>
                     <td class="px-8 py-4">
-                        <div class="text-sm font-bold text-slate-800">${t.description}</div>
-                        <div class="text-[9px] text-slate-400 font-bold uppercase">${accounts.find(a=>a.id===t.accountId)?.name || '...'} • ${t.category}</div>
+                        <div class="text-sm font-bold ${t.isPlanned ? 'text-indigo-800 italic' : 'text-slate-800'}">
+                            ${t.description}
+                            ${t.isPlanned ? '<span class="ml-2 text-[8px] bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full font-black uppercase">PREVISIÓN</span>' : ''}
+                        </div>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">${accounts.find(a=>a.id===t.accountId)?.name || '...'} • ${t.category}</div>
                     </td>
                     <td class="px-8 py-4 text-right font-black text-sm ${t.type==='income'?'text-emerald-600':'text-rose-500'}">${t.type==='income'?'+':'-'}${t.amount.toFixed(2)}€</td>
                     <td class="px-8 py-4 text-center">
                         <div class="flex gap-2 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="openTransactionModal(${t.id})" class="text-slate-400 hover:text-indigo-500 transition-colors" title="Editar"><i class="fas fa-edit text-xs"></i></button>
-                            <button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-rose-500 transition-colors" title="Borrar"><i class="fas fa-trash-alt text-xs"></i></button>
+                            ${t.isPlanned ? `<button onclick="confirmPlannedTransaction(${t.id})" class="text-indigo-400 hover:text-emerald-500 transition-colors bg-white px-2 py-1 rounded shadow-sm border" title="Confirmar como Real"><i class="fas fa-check"></i></button>` : ''}
+                            <button onclick="openTransactionModal(${t.id})" class="text-slate-400 hover:text-indigo-500 transition-colors p-1" title="Editar"><i class="fas fa-edit text-xs"></i></button>
+                            <button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-rose-500 transition-colors p-1" title="Borrar"><i class="fas fa-trash-alt text-xs"></i></button>
                         </div>
                     </td>
                 </tr>`).join('');
+        }
+
+        // CONFIRMAR PREVISIÓN
+        function confirmPlannedTransaction(id) {
+            const tx = transactions.find(t => t.id === id);
+            if(tx) {
+                tx.isPlanned = false;
+                saveData();
+                showToast("Previsión confirmada como real", "emerald");
+            }
         }
 
         function renderGoalsCascada(available) {
@@ -548,11 +626,7 @@
                     labels: activeCats, 
                     datasets: [{ data, backgroundColor: ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#94a3b8'], borderWidth: 4, borderColor: '#ffffff' }] 
                 }, 
-                options: { 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } }, 
-                    cutout: '80%' 
-                } 
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } }, cutout: '80%' } 
             });
         }
 
@@ -569,35 +643,23 @@
         function updateSelects() {
             const opts = accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
             ['account-select','transfer-target','emergency-account-select','sweep-account-select','csv-account-target'].forEach(id => { 
-                const el = document.getElementById(id); 
-                if(el) el.innerHTML = opts; 
+                const el = document.getElementById(id); if(el) el.innerHTML = opts; 
             });
             document.getElementById('category').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
         }
 
-        // --- 4. CATEGORÍAS ---
-        function toggleCatModal() { 
-            document.getElementById('modal-cat').classList.toggle('hidden'); 
-        }
-
+        // --- 5. CATEGORÍAS ---
+        function toggleCatModal() { document.getElementById('modal-cat').classList.toggle('hidden'); }
         function addNewCategory() {
-            const nameInput = document.getElementById('new-cat-name');
-            const name = nameInput.value.trim();
+            const nameInput = document.getElementById('new-cat-name'), name = nameInput.value.trim();
             if (name && !categories.includes(name)) {
-                categories.push(name);
-                nameInput.value = '';
-                updateSelects();
-                saveData();
-                toggleCatModal();
-                
-                const catSelect = document.getElementById('category');
-                if(catSelect) catSelect.value = name;
-                
+                categories.push(name); nameInput.value = ''; updateSelects(); saveData(); toggleCatModal();
+                const catSelect = document.getElementById('category'); if(catSelect) catSelect.value = name;
                 showToast("Categoría añadida");
             }
         }
 
-        // --- 5. LOGICA DE MODALES Y CRUD ---
+        // --- 6. LOGICA DE MODALES Y CRUD ---
         function toggleTransactionModal() { document.getElementById('modal-transaction').classList.toggle('hidden'); }
         
         function setOpType(t) { 
@@ -619,6 +681,7 @@
             const editId = document.getElementById('edit-tx-id');
             const typeSelector = document.getElementById('tx-type-selector');
             const recCheck = document.getElementById('recurring-check-container');
+            const planCheck = document.getElementById('is-planned-tx');
 
             if (id) {
                 const tx = transactions.find(t => t.id == id);
@@ -630,6 +693,7 @@
                 document.getElementById('account-select').value = tx.accountId;
                 document.getElementById('category').value = tx.category;
                 document.getElementById('date').value = tx.date;
+                planCheck.checked = tx.isPlanned || false;
                 
                 setOpType(tx.type);
                 typeSelector.classList.remove('opacity-40', 'pointer-events-none');
@@ -637,6 +701,7 @@
             } else {
                 title.textContent = "Registrar Movimiento";
                 editId.value = "";
+                planCheck.checked = false; // Por defecto reales
                 typeSelector.classList.remove('opacity-40', 'pointer-events-none');
                 recCheck.classList.remove('hidden');
                 setOpType('expense');
@@ -652,6 +717,7 @@
             const accId = document.getElementById('account-select').value;
             const cat = document.getElementById('category').value;
             const date = document.getElementById('date').value;
+            const isPlan = document.getElementById('is-planned-tx').checked;
 
             if (editId) {
                 const idx = transactions.findIndex(t => t.id == editId);
@@ -660,10 +726,10 @@
                 if (currentOpType === 'transfer' && oldTx.type !== 'transfer') {
                     const targetId = document.getElementById('transfer-target').value;
                     const tid = Date.now();
-                    transactions[idx] = { ...oldTx, description: `Traspaso: ${desc}`, amount: amt, accountId: accId, category: 'Traspaso', date, type: 'expense', isTransfer: true };
-                    transactions.push({ id: tid, description: `Traspaso: ${desc}`, amount: amt, type: 'income', category: 'Traspaso', date, accountId: targetId, isTransfer: true });
+                    transactions[idx] = { ...oldTx, description: `Traspaso: ${desc}`, amount: amt, accountId: accId, category: 'Traspaso', date, type: 'expense', isTransfer: true, isPlanned: isPlan };
+                    transactions.push({ id: tid, description: `Traspaso: ${desc}`, amount: amt, type: 'income', category: 'Traspaso', date, accountId: targetId, isTransfer: true, isPlanned: isPlan });
                 } else {
-                    transactions[idx] = { ...oldTx, description: desc, amount: amt, accountId: accId, category: cat, date: date, type: currentOpType };
+                    transactions[idx] = { ...oldTx, description: desc, amount: amt, accountId: accId, category: cat, date: date, type: currentOpType, isPlanned: isPlan };
                 }
                 showToast("Actualizado correctamente");
             } else {
@@ -673,15 +739,14 @@
 
                 if (currentOpType === 'transfer') {
                     const targetId = document.getElementById('transfer-target').value, tid = Date.now();
-                    transactions.push({ id: tid, description: `Traspaso: ${desc}`, amount: amt, type: 'expense', category: 'Traspaso', date, accountId: accId, isTransfer: true });
-                    transactions.push({ id: tid + 1, description: `Traspaso: ${desc}`, amount: amt, type: 'income', category: 'Traspaso', date, accountId: targetId, isTransfer: true });
+                    transactions.push({ id: tid, description: `Traspaso: ${desc}`, amount: amt, type: 'expense', category: 'Traspaso', date, accountId: accId, isTransfer: true, isPlanned: isPlan });
+                    transactions.push({ id: tid + 1, description: `Traspaso: ${desc}`, amount: amt, type: 'income', category: 'Traspaso', date, accountId: targetId, isTransfer: true, isPlanned: isPlan });
                 } else {
-                    transactions.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, date: date, accountId: accId });
+                    transactions.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, date: date, accountId: accId, isPlanned: isPlan });
                 }
-                showToast("Movimiento registrado");
+                showToast(isPlan ? "Previsión registrada" : "Movimiento registrado");
             }
-            saveData(); 
-            toggleTransactionModal();
+            saveData(); toggleTransactionModal();
         };
 
         function deleteTransaction(id) { if(confirm("¿Borrar movimiento de forma permanente?")) { transactions = transactions.filter(t=>t.id != id); saveData(); } }
@@ -756,7 +821,7 @@
             saveData(); toggleSettingsModal();
         }
 
-        // --- 6. IMPORTADOR CSV ---
+        // --- 7. IMPORTADOR CSV ---
         function toggleCsvModal() { document.getElementById('modal-csv').classList.toggle('hidden'); resetCsvSteps(); }
         function resetCsvSteps() { document.getElementById('csv-step-1').classList.remove('hidden'); document.getElementById('csv-step-2').classList.add('hidden'); csvRawData = []; }
         
@@ -811,8 +876,10 @@
                 let dp = row[dI].split(/[\/\-\.]/), dateIso = dp.length === 3 ? (dp[0].length===4 ? `${dp[0]}-${dp[1]}-${dp[2]}` : `${dp[2]}-${dp[1]}-${dp[0]}`) : row[dI];
                 const desc = row[cI] || "Importación Bancaria";
                 
-                if (!transactions.some(t => t.accountId === accId && t.amount === Math.abs(amt) && t.date === dateIso && t.description === desc)) {
-                    transactions.push({ id: Date.now() + Math.random(), description: desc, amount: Math.abs(amt), type: amt >= 0 ? 'income' : 'expense', category: 'Importado', date: dateIso, accountId: accId });
+                // CRÍTICO: El filtro de duplicados CSV ignora pre-planificaciones, solo busca si ya hay un movimiento REAL igual
+                if (!transactions.some(t => !t.isPlanned && t.accountId === accId && Math.abs(t.amount) === Math.abs(amt) && t.date === dateIso && t.description === desc)) {
+                    // Se importan siempre como isPlanned: false
+                    transactions.push({ id: Date.now() + Math.random(), description: desc, amount: Math.abs(amt), type: amt >= 0 ? 'income' : 'expense', category: 'Importado', date: dateIso, accountId: accId, isPlanned: false });
                     count++;
                 } else {
                     duplicates++;
@@ -822,15 +889,16 @@
             showToast(`Importados ${count} registros. ${duplicates} duplicados ignorados.`);
         }
 
-        // --- 7. AUTOMATIZACIÓN ---
+        // --- 8. AUTOMATIZACIÓN ---
         function checkAutomation() { 
             const alert = document.getElementById('automation-alert');
             const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            // Verificamos si faltan automatismos usando TODAS las transacciones para no duplicar si algo está planificado
             const done = transactions.filter(t => t.date.startsWith(currentMonthStr));
             
             const missingRecurring = recurring.some(r => !done.some(d => d.description === r.description));
             const mainChecking = accounts.find(a => a.id === settings.sweepAccountId);
-            const needsSweep = mainChecking && settings.minChecking > 0 && calculateBalance(mainChecking.id) > settings.minChecking;
+            const needsSweep = mainChecking && settings.minChecking > 0 && calculateBalance(mainChecking.id, transactions) > settings.minChecking;
             
             if(alert) alert.classList.toggle('hidden', !(missingRecurring || needsSweep));
         }
@@ -840,35 +908,32 @@
             const ds = `${currentMonthStr}-01`;
             const done = transactions.filter(t => t.date.startsWith(currentMonthStr));
             
-            // Recurrentes
             recurring.forEach(r => { 
                 if(!done.some(d => d.description === r.description)) {
-                    transactions.push({...r, id: Date.now() + Math.random(), date: ds}); 
+                    transactions.push({...r, id: Date.now() + Math.random(), date: ds, isPlanned: false}); 
                 }
             });
             
-            // Rendimientos (TAE)
             accounts.forEach(acc => {
                 if(acc.performance > 0) {
                     const desc = `Rendimiento: ${acc.name} (${currentMonth+1}/${currentYear})`;
                     if(!done.some(d => d.description === desc)) {
-                        const prev = transactions.filter(t => t.date < currentMonthStr && t.accountId === acc.id).reduce((s,t) => s+(t.type==='income'?t.amount:-t.amount), 0);
+                        const prev = transactions.filter(t => t.date < currentMonthStr && t.accountId === acc.id && !t.isPlanned).reduce((s,t) => s+(t.type==='income'?t.amount:-t.amount), 0);
                         if(prev > 0) {
-                            transactions.push({id: Date.now() + Math.random(), description: desc, amount: (prev*(acc.performance/100))/12, type: 'income', category: 'Inversión', date: ds, accountId: acc.id});
+                            transactions.push({id: Date.now() + Math.random(), description: desc, amount: (prev*(acc.performance/100))/12, type: 'income', category: 'Inversión', date: ds, accountId: acc.id, isPlanned: false});
                         }
                     }
                 }
             });
             
-            // Barrido (Sweep)
             const src = accounts.find(a => a.id === settings.sweepAccountId);
             const tgt = accounts.find(a => a.id === settings.emergencyAccountId) || accounts.find(a => a.type === 'savings');
             if(src && tgt && settings.minChecking > 0) { 
-                const bal = calculateBalance(src.id); 
+                const bal = calculateBalance(src.id, transactions.filter(t=>!t.isPlanned)); // Barrido solo sobre dinero real
                 if(bal > settings.minChecking) { 
                     const diff = bal - settings.minChecking, tid = Date.now(); 
-                    transactions.push({id: tid, description: 'Barrido Automático a Ahorro', amount: diff, type: 'expense', category: 'Traspaso', date: ds, accountId: src.id, isTransfer: true}); 
-                    transactions.push({id: tid + 1, description: 'Barrido Automático a Ahorro', amount: diff, type: 'income', category: 'Traspaso', date: ds, accountId: tgt.id, isTransfer: true}); 
+                    transactions.push({id: tid, description: 'Barrido Automático a Ahorro', amount: diff, type: 'expense', category: 'Traspaso', date: ds, accountId: src.id, isTransfer: true, isPlanned: false}); 
+                    transactions.push({id: tid + 1, description: 'Barrido Automático a Ahorro', amount: diff, type: 'income', category: 'Traspaso', date: ds, accountId: tgt.id, isTransfer: true, isPlanned: false}); 
                 } 
             }
             
@@ -876,7 +941,7 @@
             showToast("Ejecución automática completada");
         }
 
-        // --- 8. UTILIDADES ---
+        // --- 9. UTILIDADES ---
         function changeMonth(dir) { currentMonth += dir; if(currentMonth<0){currentMonth=11;currentYear--} if(currentMonth>11){currentMonth=0;currentYear++} updateUI(); }
         function deleteTemplate(id) { if(confirm("¿Eliminar gasto recurrente?")) { recurring = recurring.filter(t=>t.id!=id); saveData(); } }
         function showToast(m, c="indigo") { const t = document.getElementById('toast'); t.textContent = m; t.className = `fixed bottom-6 right-6 bg-${c==='red'?'rose-600':c==='emerald'?'emerald-600':'slate-900'} text-white px-8 py-4 rounded-2xl shadow-2xl transition-all opacity-100 z-[200]`; setTimeout(() => t.classList.add('opacity-0'), 3500); }
