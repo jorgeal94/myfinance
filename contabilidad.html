@@ -81,19 +81,16 @@
                         <h3 id="reserve-display" class="text-2xl font-bold">0.00 €</h3>
                         <div class="mt-3 flex justify-between items-center">
                             <span id="emergency-account-label" class="text-[8px] opacity-40 uppercase font-bold truncate pr-2">Sin vincular</span>
-                            <button onclick="toggleSettingsModal()" class="text-[10px] bg-white/10 px-2 py-1 rounded hover:bg-white/20 font-bold uppercase tracking-tighter">Ajustes</button>
+                            <button onclick="toggleSettingsModal()" class="text-[10px] bg-white/10 px-2 py-1 rounded hover:bg-white/20 font-bold uppercase tracking-tighter text-indigo-200">Ajustes</button>
                         </div>
                     </div>
                     
                     <div class="glass-card p-5 rounded-2xl shadow-sm">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xs font-black text-slate-400 uppercase">Gastos Fijos</h2>
-                            <i class="fas fa-redo text-slate-300 text-xs"></i>
-                        </div>
+                        <h2 class="text-xs font-black text-slate-400 uppercase mb-4">Gastos Fijos</h2>
                         <div id="recurring-templates-container" class="space-y-2 text-xs"></div>
                     </div>
 
-                    <button onclick="toggleCsvModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all">
+                    <button onclick="toggleCsvModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all border border-slate-200">
                         <i class="fas fa-file-import"></i> Importar Banco (CSV)
                     </button>
                 </div>
@@ -116,37 +113,45 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <section class="glass-card p-6 rounded-3xl">
+                        <!-- METAS RESTAURADAS -->
+                        <section class="glass-card p-6 rounded-3xl shadow-sm">
                             <div class="flex justify-between mb-6 items-center">
                                 <div>
-                                    <h2 class="text-xs font-black text-slate-400 uppercase">Metas en Cascada</h2>
+                                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Metas en Cascada</h2>
                                     <p class="text-[9px] text-indigo-500 font-bold uppercase mt-1">Disponible: <span id="available-savings-display">0.00 €</span></p>
                                 </div>
                                 <button onclick="toggleGoalModal()" class="text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase hover:bg-indigo-100 transition-colors">Nueva Meta</button>
                             </div>
                             <div id="goals-container" class="space-y-4 min-h-[100px]"></div>
                         </section>
+
                         <section class="glass-card p-6 rounded-3xl">
-                            <h2 class="text-xs font-black text-slate-400 uppercase mb-6">Gastos por Categoría</h2>
+                            <h2 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest">Gastos por Categoría</h2>
                             <div class="h-[220px]"><canvas id="categoryChart"></canvas></div>
                         </section>
                     </div>
 
+                    <!-- TABLA CON BOTÓN EDITAR -->
                     <section class="glass-card rounded-3xl overflow-hidden shadow-sm">
                         <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                            <h2 class="text-sm font-black text-slate-400 uppercase">Historial del Periodo</h2>
-                            <button onclick="openTransactionModal()" class="bg-indigo-600 text-white text-[10px] px-4 py-2 rounded-xl font-black uppercase hover:bg-indigo-700">+ Manual</button>
+                            <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest">Historial del Periodo</h2>
+                            <button onclick="openTransactionModal()" class="bg-indigo-600 text-white text-[10px] px-4 py-2 rounded-xl font-black uppercase hover:bg-indigo-700">+ Registro Manual</button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left">
                                 <thead class="bg-slate-50 text-[10px] uppercase text-slate-400 font-black">
-                                    <tr><th class="px-8 py-4">Fecha</th><th class="px-8 py-4">Concepto</th><th class="px-8 py-4 text-right">Importe</th><th class="px-8 py-4"></th></tr>
+                                    <tr>
+                                        <th class="px-8 py-4">Fecha</th>
+                                        <th class="px-8 py-4">Concepto / Cuenta</th>
+                                        <th class="px-8 py-4 text-right">Importe</th>
+                                        <th class="px-8 py-4 text-center">Acciones</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="transaction-list" class="divide-y divide-slate-100 bg-white"></tbody>
                             </table>
                         </div>
                         <div id="empty-state" class="hidden py-16 text-center text-slate-300">
-                             <p class="text-xs font-bold uppercase tracking-widest">Sin movimientos</p>
+                             <p class="text-xs font-bold uppercase tracking-widest">Sin movimientos registrados</p>
                         </div>
                     </section>
                 </div>
@@ -154,7 +159,7 @@
         </main>
     </div>
 
-    <!-- MODAL: TRANSACCIÓN (NUEVA / EDITAR) -->
+    <!-- MODAL: TRANSACCIÓN (MEJORADO PARA EDICIÓN) -->
     <div id="modal-transaction" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl">
             <h3 id="transaction-modal-title" class="text-xl font-bold mb-6 text-slate-800">Registrar Movimiento</h3>
@@ -170,7 +175,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Concepto</label>
-                        <input type="text" id="description" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm outline-none">
+                        <input type="text" id="description" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Importe (€)</label>
@@ -198,14 +203,14 @@
                     </div>
                 </div>
 
-                <div id="recurring-check-div" class="flex items-center gap-2 py-2">
+                <div id="recurring-check-container" class="flex items-center gap-2 py-2">
                     <input type="checkbox" id="is-recurring-template" class="w-4 h-4 text-indigo-600 rounded">
-                    <label for="is-recurring-template" class="text-xs text-slate-500 font-bold italic">Guardar como movimiento recurrente</label>
+                    <label for="is-recurring-template" class="text-xs text-slate-500 font-bold italic">Guardar como gasto fijo mensual</label>
                 </div>
 
                 <div class="flex gap-3 mt-6">
                     <button type="button" onclick="toggleTransactionModal()" class="flex-1 py-3 bg-slate-100 rounded-2xl text-xs font-black uppercase text-slate-500">Cerrar</button>
-                    <button type="submit" id="transaction-save-btn" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase shadow-lg">Guardar</button>
+                    <button type="submit" id="transaction-save-btn" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase shadow-lg">Confirmar</button>
                 </div>
             </form>
         </div>
@@ -214,32 +219,32 @@
     <!-- OTROS MODALES (CUENTAS, CSV, GOALS, SETTINGS) -->
     <div id="modal-account" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
-            <h3 id="account-modal-title" class="text-xl font-bold mb-6">Nueva Cuenta</h3>
+            <h3 id="account-modal-title" class="text-xl font-bold mb-6 text-slate-800">Nueva Cuenta</h3>
             <input type="hidden" id="edit-account-id">
             <div class="space-y-4">
-                <input type="text" id="acc-name" placeholder="Nombre" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
+                <input type="text" id="acc-name" placeholder="Nombre de la cuenta" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none">
                 <select id="acc-type" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
                     <option value="checking">Corriente</option><option value="savings">Ahorro</option><option value="investment">Inversión</option>
                 </select>
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="acc-performance" step="0.01" placeholder="TAE %" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
+                    <input type="number" id="acc-performance" step="0.01" placeholder="Rendimiento %" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
                     <div id="initial-balance-container"><input type="number" id="acc-initial-balance" step="0.01" placeholder="Saldo inicial" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl"></div>
                 </div>
             </div>
             <div class="flex gap-3 mt-8">
                 <button onclick="toggleAccountModal()" class="flex-1 py-3 bg-slate-100 rounded-2xl font-bold uppercase text-xs">Cerrar</button>
-                <button onclick="handleAccountAction()" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl font-bold uppercase text-xs">Confirmar</button>
+                <button id="account-confirm-btn" onclick="handleAccountAction()" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl font-bold uppercase text-xs">Guardar</button>
             </div>
         </div>
     </div>
 
     <div id="modal-csv" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-2xl shadow-2xl overflow-y-auto max-h-[90vh]">
-            <h3 class="text-xl font-bold mb-2">Importador Bancario CSV</h3>
+            <h3 class="text-xl font-bold mb-2">Importador CSV Bancario</h3>
             <div id="csv-step-1" class="space-y-6">
                 <div id="drop-zone" class="drop-zone p-12 rounded-3xl text-center cursor-pointer hover:bg-slate-50 transition-all">
                     <i class="fas fa-cloud-upload-alt text-4xl text-indigo-200 mb-4"></i>
-                    <p class="text-sm font-bold text-slate-600">Suelta tu CSV bancario aquí</p>
+                    <p class="text-sm font-bold text-slate-600">Suelta tu archivo CSV aquí</p>
                     <input type="file" id="csv-file" class="hidden" accept=".csv">
                 </div>
             </div>
@@ -253,7 +258,7 @@
                 <div class="border rounded-2xl overflow-hidden max-h-40 overflow-y-auto">
                     <table class="w-full text-[10px]"><tbody id="csv-preview-body" class="divide-y"></tbody></table>
                 </div>
-                <button onclick="processCsv()" class="w-full py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase">Importar Ahora</button>
+                <button onclick="processCsv()" class="w-full py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase">Importar Movimientos</button>
             </div>
             <button onclick="toggleCsvModal()" class="w-full mt-2 text-slate-400 font-bold text-xs uppercase">Cancelar</button>
         </div>
@@ -262,9 +267,9 @@
     <div id="modal-goal" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
             <h3 class="text-xl font-bold mb-6">Nueva Meta de Ahorro</h3>
-            <input type="text" id="goal-name" placeholder="Nombre" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl mb-4">
-            <input type="number" id="goal-target" placeholder="Importe total (€)" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl mb-6">
-            <button onclick="addNewGoal()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase">Crear</button>
+            <input type="text" id="goal-name" placeholder="Nombre" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl mb-4 outline-none">
+            <input type="number" id="goal-target" placeholder="Importe total (€)" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl mb-6 outline-none">
+            <button onclick="addNewGoal()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase">Crear Meta</button>
             <button onclick="toggleGoalModal()" class="w-full mt-2 text-slate-400 text-xs font-bold uppercase">Cerrar</button>
         </div>
     </div>
@@ -274,18 +279,18 @@
             <h3 class="text-xl font-bold mb-6">Ajustes Globales</h3>
             <div class="space-y-4">
                 <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100">
-                    <label class="block text-[9px] font-black text-rose-400 uppercase mb-1">Escudo Emergencia (€)</label>
-                    <input type="number" id="emergency-input" class="w-full px-3 py-2 border rounded-xl mb-2 font-bold">
+                    <label class="block text-[9px] font-black text-rose-400 uppercase mb-1">Escudo de Emergencia (€)</label>
+                    <input type="number" id="emergency-input" class="w-full px-3 py-2 border rounded-xl mb-2 font-bold text-rose-700">
                     <select id="emergency-account-select" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
                 </div>
                 <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
-                    <label class="block text-[9px] font-black text-indigo-400 uppercase mb-1">Mínimo Corriente (€)</label>
-                    <input type="number" id="min-checking-input" class="w-full px-3 py-2 border rounded-xl mb-2 font-bold">
+                    <label class="block text-[9px] font-black text-indigo-400 uppercase mb-1">Mínimo en Cuenta Corriente (€)</label>
+                    <input type="number" id="min-checking-input" class="w-full px-3 py-2 border rounded-xl mb-2 font-bold text-indigo-700">
                     <select id="sweep-account-select" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
                 </div>
             </div>
-            <button onclick="saveSettings()" class="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase">Guardar</button>
-            <button onclick="toggleSettingsModal()" class="w-full mt-2 text-slate-400 font-bold text-xs uppercase text-center">Cerrar</button>
+            <button onclick="saveSettings()" class="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase">Guardar Ajustes</button>
+            <button onclick="toggleSettingsModal()" class="w-full mt-2 text-slate-400 font-bold text-xs uppercase text-center w-full">Cerrar</button>
         </div>
     </div>
 
@@ -299,19 +304,25 @@
         let catChart = null, csvRawData = [], dragSourceIndex = null, currentOpType = 'expense';
         const categories = ['Sueldo', 'Vivienda', 'Alimentación', 'Suministros', 'Inversión', 'Ocio', 'Salud', 'Transporte', 'Otros', 'Importado'];
 
-        // Auth y Carga
+        // Auth
         async function attemptLogin() {
             const user = document.getElementById('login-user').value, pass = document.getElementById('login-pass').value;
             authString = 'Basic ' + btoa(user + ':' + pass); fetchData();
         }
         function logout() { localStorage.removeItem('finance_auth'); location.reload(); }
 
+        // Data Sync
         async function fetchData() {
             try {
                 const res = await fetch('/api/data', { headers: { 'Authorization': authString } });
                 if (res.status === 401) throw new Error('Unauthorized');
                 const data = await res.json();
-                accounts = data.accounts; transactions = data.transactions; goals = data.goals; recurring = data.recurring; settings = data.settings;
+                accounts = data.accounts || []; 
+                transactions = data.transactions || []; 
+                goals = data.goals || []; 
+                recurring = data.recurring || []; 
+                settings = data.settings || { emergencyFund: 0, minChecking: 0, emergencyAccountId: '', sweepAccountId: '' };
+                
                 localStorage.setItem('finance_auth', authString);
                 document.getElementById('login-overlay').classList.add('hidden');
                 document.getElementById('app-content').classList.remove('opacity-0');
@@ -320,7 +331,11 @@
         }
 
         async function saveData() {
-            await fetch('/api/save', { method: 'POST', headers: { 'Authorization': authString, 'Content-Type': 'application/json' }, body: JSON.stringify({ accounts, transactions, goals, recurring, settings }) });
+            await fetch('/api/save', { 
+                method: 'POST', 
+                headers: { 'Authorization': authString, 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ accounts, transactions, goals, recurring, settings }) 
+            });
             updateUI();
         }
 
@@ -332,13 +347,15 @@
             const saveBtn = document.getElementById('transaction-save-btn');
             const editIdInput = document.getElementById('edit-transaction-id');
             const opSelector = document.getElementById('op-type-selector');
+            const recCheck = document.getElementById('recurring-check-container');
             const form = document.getElementById('finance-form');
 
             form.reset();
             document.getElementById('date').valueAsDate = new Date();
 
             if (id) {
-                const tx = transactions.find(t => t.id === id);
+                const tx = transactions.find(t => t.id == id);
+                if (!tx) return;
                 title.textContent = "Editar Movimiento";
                 saveBtn.textContent = "Actualizar";
                 editIdInput.value = id;
@@ -348,13 +365,14 @@
                 document.getElementById('category').value = tx.category;
                 document.getElementById('date').value = tx.date;
                 setOpType(tx.type);
-                // Ocultar selector de tipo en edición para evitar descuadres de flujo
-                opSelector.classList.add('opacity-50', 'pointer-events-none');
+                opSelector.classList.add('opacity-40', 'pointer-events-none');
+                recCheck.classList.add('hidden');
             } else {
                 title.textContent = "Registrar Movimiento";
                 saveBtn.textContent = "Guardar";
                 editIdInput.value = "";
-                opSelector.classList.remove('opacity-50', 'pointer-events-none');
+                opSelector.classList.remove('opacity-40', 'pointer-events-none');
+                recCheck.classList.remove('hidden');
                 setOpType('expense');
             }
             toggleTransactionModal();
@@ -368,17 +386,15 @@
             const accId = document.getElementById('account-select').value;
             const cat = document.getElementById('category').value;
             const date = document.getElementById('date').value;
-            const isRec = document.getElementById('is-recurring-template').checked;
 
             if (editId) {
-                // Modo Edición
                 const idx = transactions.findIndex(t => t.id == editId);
                 transactions[idx] = { ...transactions[idx], description: desc, amount: amt, accountId: accId, category: cat, date: date };
-                showToast("Movimiento actualizado");
+                showToast("Actualizado correctamente");
             } else {
-                // Modo Nuevo
-                if (isRec) recurring.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, accountId: accId });
-                
+                if (document.getElementById('is-recurring-template').checked) {
+                    recurring.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, accountId: accId });
+                }
                 if (currentOpType === 'transfer') {
                     const targetId = document.getElementById('transfer-target').value, tid = Date.now();
                     transactions.push({ id: tid, description: `Traspaso: ${desc}`, amount: amt, type: 'expense', category: 'Traspaso', date, accountId: accId, isTransfer: true });
@@ -386,15 +402,15 @@
                 } else {
                     transactions.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, date, accountId: accId });
                 }
-                showToast("Movimiento guardado");
+                showToast("Movimiento registrado");
             }
             saveData(); toggleTransactionModal();
         };
 
-        // --- Cuentas y Ajustes ---
+        // --- Cuentas ---
         function toggleAccountModal() { document.getElementById('modal-account').classList.toggle('hidden'); }
         function openAccountModal(id = null) {
-            const initialContainer = document.getElementById('initial-balance-container');
+            const container = document.getElementById('initial-balance-container');
             if (id) {
                 const acc = accounts.find(a => a.id === id);
                 document.getElementById('account-modal-title').textContent = "Editar Cuenta";
@@ -402,16 +418,18 @@
                 document.getElementById('acc-name').value = acc.name;
                 document.getElementById('acc-type').value = acc.type;
                 document.getElementById('acc-performance').value = acc.performance;
-                initialContainer.classList.add('hidden');
+                container.classList.add('hidden');
             } else {
                 document.getElementById('account-modal-title').textContent = "Nueva Cuenta";
                 document.getElementById('edit-account-id').value = "";
                 document.getElementById('acc-name').value = "";
+                document.getElementById('acc-performance').value = 0;
                 document.getElementById('acc-initial-balance').value = 0;
-                initialContainer.classList.remove('hidden');
+                container.classList.remove('hidden');
             }
             toggleAccountModal();
         }
+
         function handleAccountAction() {
             const id = document.getElementById('edit-account-id').value, name = document.getElementById('acc-name').value, type = document.getElementById('acc-type').value, perf = parseFloat(document.getElementById('acc-performance').value) || 0;
             if (!name) return;
@@ -421,11 +439,12 @@
             } else {
                 const newAcc = { id: 'acc_' + Date.now(), name, type, performance: perf };
                 accounts.push(newAcc);
-                const initial = parseFloat(document.getElementById('acc-initial-balance').value) || 0;
-                if (initial !== 0) transactions.push({ id: Date.now(), description: 'Saldo Inicial', amount: Math.abs(initial), type: initial > 0 ? 'income' : 'expense', category: 'Otros', date: new Date().toISOString().split('T')[0], accountId: newAcc.id });
+                const init = parseFloat(document.getElementById('acc-initial-balance').value) || 0;
+                if (init !== 0) transactions.push({ id: Date.now(), description: 'Saldo Inicial', amount: Math.abs(init), type: init > 0 ? 'income' : 'expense', category: 'Otros', date: new Date().toISOString().split('T')[0], accountId: newAcc.id });
             }
             saveData(); toggleAccountModal(); updateSelects();
         }
+
         function deleteAccount(id) { if (confirm("¿Borrar cuenta y movimientos?")) { accounts = accounts.filter(a => a.id !== id); transactions = transactions.filter(t => t.accountId !== id); saveData(); updateSelects(); } }
 
         // --- CSV ---
@@ -439,8 +458,7 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = (e) => {
-                const text = e.target.result;
-                const rows = text.split(/\r?\n/).filter(r => r.trim() !== "").map(row => {
+                const rows = e.target.result.split(/\r?\n/).filter(r => r.trim() !== "").map(row => {
                     const sep = row.includes(";") ? ";" : (row.includes("\t") ? "\t" : ",");
                     return row.split(sep).map(cell => cell.replace(/^["']|["']$/g, '').trim());
                 });
@@ -450,24 +468,22 @@
         }
         function showCsvMapping() {
             const headers = csvRawData[0];
-            ['col-date', 'col-desc', 'col-amount'].forEach(id => document.getElementById(id).innerHTML = headers.map((h, i) => `<option value="${i}">${h || `Columna ${i+1}`}</option>`).join(''));
-            document.getElementById('csv-step-1').classList.add('hidden');
-            document.getElementById('csv-step-2').classList.remove('hidden');
-            updateSelects();
+            ['col-date', 'col-desc', 'col-amount'].forEach(id => document.getElementById(id).innerHTML = headers.map((h, i) => `<option value="${i}">${h || `Col ${i+1}`}</option>`).join(''));
+            document.getElementById('csv-step-1').classList.add('hidden'); document.getElementById('csv-step-2').classList.remove('hidden'); updateSelects();
         }
         function processCsv() {
-            const dIdx = document.getElementById('col-date').value, cIdx = document.getElementById('col-desc').value, aIdx = document.getElementById('col-amount').value, accId = document.getElementById('csv-account-target').value;
+            const dI = document.getElementById('col-date').value, cI = document.getElementById('col-desc').value, aI = document.getElementById('col-amount').value, accId = document.getElementById('csv-account-target').value;
             let count = 0;
             csvRawData.slice(1).forEach(row => {
-                if (!row[dIdx] || !row[aIdx]) return;
-                let cleanAmt = row[aIdx].replace(/\./g, '').replace(',', '.'), amt = parseFloat(cleanAmt); if (isNaN(amt)) return;
-                let dp = row[dIdx].split(/[\/\-\.]/), dateIso = dp.length === 3 ? (dp[0].length===4 ? `${dp[0]}-${dp[1]}-${dp[2]}` : `${dp[2]}-${dp[1]}-${dp[0]}`) : row[dIdx];
-                if (!transactions.some(t => t.accountId === accId && t.amount === Math.abs(amt) && t.date === dateIso && t.description === row[cIdx])) {
-                    transactions.push({ id: Date.now() + Math.random(), description: row[cIdx] || "Importado", amount: Math.abs(amt), type: amt >= 0 ? 'income' : 'expense', category: 'Importado', date: dateIso, accountId: accId });
+                if (!row[dI] || !row[aI]) return;
+                let cleanAmt = row[aI].replace(/\./g, '').replace(',', '.'), amt = parseFloat(cleanAmt); if (isNaN(amt)) return;
+                let dp = row[dI].split(/[\/\-\.]/), dateIso = dp.length === 3 ? (dp[0].length===4 ? `${dp[0]}-${dp[1]}-${dp[2]}` : `${dp[2]}-${dp[1]}-${dp[0]}`) : row[dI];
+                if (!transactions.some(t => t.accountId === accId && t.amount === Math.abs(amt) && t.date === dateIso && t.description === row[cI])) {
+                    transactions.push({ id: Date.now() + Math.random(), description: row[cI] || "Importado", amount: Math.abs(amt), type: amt >= 0 ? 'income' : 'expense', category: 'Importado', date: dateIso, accountId: accId });
                     count++;
                 }
             });
-            saveData(); toggleCsvModal(); showToast(`Importados ${count} movimientos.`);
+            saveData(); toggleCsvModal(); showToast(`Importados ${count} movimientos`);
         }
 
         // --- UI y Metas ---
@@ -476,6 +492,8 @@
         function toggleSettingsModal() { 
             document.getElementById('emergency-input').value = settings.emergencyFund;
             document.getElementById('min-checking-input').value = settings.minChecking;
+            document.getElementById('emergency-account-select').value = settings.emergencyAccountId;
+            document.getElementById('sweep-account-select').value = settings.sweepAccountId;
             document.getElementById('modal-settings').classList.toggle('hidden'); 
         }
         function saveSettings() {
@@ -506,7 +524,7 @@
             document.getElementById('month-expense').textContent = `${thisM.filter(t=>t.type==='expense'&&!t.isTransfer).reduce((s,t)=>s+t.amount,0).toFixed(2)} €`;
             document.getElementById('month-balance').textContent = `${(thisM.filter(t=>t.type==='income'&&!t.isTransfer).reduce((s,t)=>s+t.amount,0) - thisM.filter(t=>t.type==='expense'&&!t.isTransfer).reduce((s,t)=>s+t.amount,0)).toFixed(2)} €`;
 
-            renderTable(thisM); renderTemplates(); renderGoalsCascada(av); renderCharts(thisM);
+            renderTable(thisM); renderTemplates(); renderGoalsCascada(av); renderCharts(thisM); checkAutomation();
         }
 
         function renderTable(txs) {
@@ -515,7 +533,7 @@
                     <td class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase">${new Date(t.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</td>
                     <td class="px-8 py-4">
                         <div class="text-sm font-bold text-slate-800">${t.description}</div>
-                        <div class="text-[9px] text-slate-400 font-bold uppercase">${accounts.find(a=>a.id===t.accountId)?.name} • ${t.category}</div>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase">${accounts.find(a=>a.id===t.accountId)?.name || '...'} • ${t.category}</div>
                     </td>
                     <td class="px-8 py-4 text-right font-black text-sm ${t.type==='income'?'text-emerald-600':'text-rose-500'}">${t.type==='income'?'+':'-'}${t.amount.toFixed(2)}€</td>
                     <td class="px-8 py-4 text-center">
@@ -528,13 +546,13 @@
             document.getElementById('empty-state').classList.toggle('hidden', txs.length > 0);
         }
 
-        function renderTemplates() { document.getElementById('recurring-templates-container').innerHTML = recurring.map(t => `<div class="flex justify-between items-center bg-slate-50 px-4 py-2 rounded-xl group font-bold mb-1"><p class="truncate mr-2">${t.description}</p><button onclick="deleteTemplate(${t.id})" class="text-slate-200 group-hover:text-rose-400"><i class="fas fa-times"></i></button></div>`).join(''); }
+        function renderTemplates() { document.getElementById('recurring-templates-container').innerHTML = recurring.map(t => `<div class="flex justify-between items-center bg-slate-50 px-4 py-2 rounded-xl group font-bold"><p class="truncate mr-2">${t.description}</p><button onclick="deleteTemplate(${t.id})" class="text-slate-200 group-hover:text-rose-400"><i class="fas fa-times"></i></button></div>`).join(''); }
         
         function renderGoalsCascada(available) {
             let tempAv = available; document.getElementById('goals-container').innerHTML = goals.length === 0 ? '<p class="text-center py-8 opacity-20 text-xs font-bold">SIN METAS</p>' : '';
             goals.forEach((g, idx) => {
                 const filled = Math.min(tempAv, g.target), perc = (filled/g.target)*100; tempAv -= filled; const done = perc >= 100;
-                document.getElementById('goals-container').innerHTML += `<div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm relative group" draggable="true" ondragstart="dragSourceIndex=${idx}" ondrop="handleDrop(event, ${idx})" ondragover="event.preventDefault()"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-700">${g.name}</p><p class="text-xs font-black ${done?'text-emerald-500':'text-indigo-600'}">${perc.toFixed(0)}%</p></div><div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-4"><div class="h-full ${done?'bg-emerald-500':'bg-indigo-500'} progress-bar" style="width: ${perc}%"></div></div><div class="flex justify-between items-center text-[9px] font-bold uppercase"><button onclick="deleteGoal(${g.id})" class="text-slate-300 hover:text-rose-500">Eliminar</button>${done?`<button onclick="completeGoal(${g.id},'${g.name}',${g.target})" class="bg-emerald-600 text-white px-3 py-1 rounded-lg">COBRAR</button>`:`<span class="text-slate-400">Restan ${(g.target-filled).toFixed(0)}€</span>`}</div></div>`;
+                document.getElementById('goals-container').innerHTML += `<div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm relative group" draggable="true" ondragstart="dragSourceIndex=${idx}" ondrop="handleDrop(event, ${idx})" ondragover="event.preventDefault()"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-700">${g.name}</p><p class="text-xs font-black ${done?'text-emerald-500':'text-indigo-600'}">${perc.toFixed(0)}%</p></div><div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-4"><div class="h-full ${done?'bg-emerald-500':'bg-indigo-500'} progress-bar" style="width: ${perc}%"></div></div><div class="flex justify-between items-center text-[9px] font-bold uppercase"><button onclick="deleteGoal(${g.id})" class="text-slate-300 hover:text-rose-500">Eliminar</button>${done?`<button onclick="completeGoal(${g.id},'${g.name}',${g.target})" class="bg-emerald-600 text-white px-3 py-1 rounded-lg shadow-sm">COBRAR</button>`:`<span class="text-slate-400">Restan ${(g.target-filled).toFixed(0)}€</span>`}</div></div>`;
             });
         }
 
@@ -554,15 +572,26 @@
 
         function changeMonth(dir) { currentMonth += dir; if(currentMonth<0){currentMonth=11;currentYear--} if(currentMonth>11){currentMonth=0;currentYear++} updateUI(); }
         function setOpType(t) { currentOpType = t; ['expense','income','transfer'].forEach(x=>document.getElementById('btn-'+x).className = (x===t)?"flex-1 py-2 text-xs rounded-xl bg-white shadow-sm font-black text-indigo-600 uppercase":"flex-1 py-2 text-xs rounded-xl font-black text-slate-400 uppercase"); document.getElementById('transfer-target-div').classList.toggle('hidden', t!=='transfer'); }
-        function deleteTransaction(id) { if(confirm("¿Borrar este movimiento?")) { transactions = transactions.filter(t=>t.id!==id); saveData(); } }
-        function deleteTemplate(id) { recurring = recurring.filter(t=>t.id!==id); saveData(); }
-        function deleteGoal(id) { goals = goals.filter(g=>g.id!==id); saveData(); }
+        function deleteTransaction(id) { if(confirm("¿Borrar este movimiento?")) { transactions = transactions.filter(t=>t.id!=id); saveData(); } }
+        function deleteTemplate(id) { recurring = recurring.filter(t=>t.id!=id); saveData(); }
+        function deleteGoal(id) { goals = goals.filter(g=>g.id!=id); saveData(); }
         function handleDrop(e, tIdx) { e.preventDefault(); if (dragSourceIndex === tIdx) return; const temp = goals.splice(dragSourceIndex, 1)[0]; goals.splice(tIdx, 0, temp); saveData(); }
         function addNewGoal() { const n = document.getElementById('goal-name').value, t = parseFloat(document.getElementById('goal-target').value); if(n && t) { goals.push({id:Date.now(), name:n, target:t}); saveData(); toggleGoalModal(); } }
         function showToast(m, c="indigo") { const t = document.getElementById('toast'); t.textContent = m; t.className = `fixed bottom-6 right-6 bg-${c==='red'?'rose-600':c==='emerald'?'emerald-600':'slate-900'} text-white px-8 py-4 rounded-2xl shadow-2xl transition-all opacity-100 z-[200]`; setTimeout(() => t.classList.add('opacity-0'), 3500); }
+        function checkAutomation() { 
+            const alert = document.getElementById('automation-alert');
+            const miss = recurring.some(r => !transactions.filter(t=>new Date(t.date)>=new Date(currentYear, currentMonth, 1)).some(d => d.description === r.description));
+            if(alert) alert.classList.toggle('hidden', !miss);
+        }
+        async function applyAutomation() {
+            const mS = new Date(currentYear, currentMonth, 1), ds = `${currentYear}-${(currentMonth+1).toString().padStart(2,'0')}-01`, done = transactions.filter(t=>new Date(t.date)>=mS);
+            recurring.forEach(r => { if(!done.some(d => d.description === r.description)) transactions.push({...r, id:Date.now()+Math.random(), date:ds}); });
+            const src = accounts.find(a=>a.id===settings.sweepAccountId), tgt = accounts.find(a=>a.id===settings.emergencyAccountId) || accounts.find(a=>a.type==='savings');
+            if(src && tgt && settings.minChecking > 0) { const bal = calculateBalance(src.id); if(bal > settings.minChecking) { const diff = bal - settings.minChecking, tid = Date.now(); transactions.push({id:tid, description:'Barrido Automático', amount:diff, type:'expense', category:'Traspaso', date:ds, accountId:src.id, isTransfer:true}); transactions.push({id:tid+1, description:'Barrido Automático', amount:diff, type:'income', category:'Traspaso', date:ds, accountId:tgt.id, isTransfer:true}); } }
+            saveData(); showToast("Optimización completada");
+        }
         function completeGoal(id, name, amount) { const acc = accounts.find(a => a.id === settings.emergencyAccountId) || accounts.find(a => a.type === 'savings'); if(!acc) return showToast("No hay cuenta para pagar", "red"); if(confirm(`¿Cobrar meta? Se descontará de ${acc.name}`)) { transactions.push({ id: Date.now(), description: `Logro: ${name}`, amount, type: 'expense', category: 'Metas', date: new Date().toISOString().split('T')[0], accountId: acc.id }); goals = goals.filter(g => g.id !== id); saveData(); } }
 
-        // Inicialización
         window.onload = () => { if(authString) fetchData(); };
     </script>
 </body>
