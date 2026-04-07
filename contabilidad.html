@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFinance Pro v4.7 - Wealth Manager</title>
+    <title>MyFinance Pro v4.7.3 - Wealth Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -36,7 +36,6 @@
 
     <!-- APP CONTENT -->
     <div id="app-content" class="opacity-0 transition-opacity duration-500">
-        <!-- Navbar -->
         <nav class="bg-slate-900 text-white p-4 shadow-xl sticky top-0 z-50">
             <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 <h1 class="text-xl font-bold flex items-center gap-2">
@@ -52,21 +51,12 @@
                         <p class="text-[9px] opacity-50 uppercase font-black tracking-widest">Patrimonio Neto</p>
                         <p id="global-balance" class="text-lg font-bold text-indigo-400">0.00 €</p>
                     </div>
-                    <button onclick="logout()" class="text-slate-400 hover:text-white transition-colors ml-2"><i class="fas fa-sign-out-alt"></i></button>
+                    <button onclick="logout()" class="text-slate-400 hover:text-white"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </div>
         </nav>
 
         <main class="container mx-auto px-4 mt-8 max-w-7xl">
-            <!-- Alert Automation -->
-            <div id="automation-alert" class="hidden mb-6 bg-indigo-600 text-white p-4 rounded-2xl flex justify-between items-center shadow-lg">
-                <div class="flex items-center gap-4">
-                    <div class="bg-white/20 p-2 rounded-full"><i class="fas fa-wand-magic-sparkles"></i></div>
-                    <p class="text-sm font-bold">Plan mensual disponible: Rendimientos, fijos y barrido.</p>
-                </div>
-                <button onclick="applyAutomation()" class="bg-white text-indigo-600 text-xs font-black px-6 py-2 rounded-xl">EJECUTAR</button>
-            </div>
-
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <!-- Sidebar -->
                 <div class="space-y-4">
@@ -79,46 +69,37 @@
                     <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-xl border-b-4 border-rose-500">
                         <p class="text-[10px] opacity-50 font-black uppercase mb-1">Escudo de Emergencia</p>
                         <h3 id="reserve-display" class="text-2xl font-bold">0.00 €</h3>
-                        <div class="mt-3 flex justify-between items-center">
-                            <span id="emergency-account-label" class="text-[8px] opacity-40 uppercase font-bold truncate pr-2">Sin vincular</span>
-                            <button onclick="toggleSettingsModal()" class="text-[10px] bg-white/10 px-2 py-1 rounded hover:bg-white/20 font-bold uppercase tracking-tighter text-indigo-200">Ajustes</button>
-                        </div>
-                    </div>
-                    
-                    <div class="glass-card p-5 rounded-2xl shadow-sm">
-                        <h2 class="text-xs font-black text-slate-400 uppercase mb-4">Gastos Fijos</h2>
-                        <div id="recurring-templates-container" class="space-y-2 text-xs"></div>
+                        <button onclick="toggleSettingsModal()" class="mt-3 text-[10px] bg-white/10 px-2 py-1 rounded font-bold uppercase w-full">Ajustes Globales</button>
                     </div>
 
-                    <button onclick="toggleCsvModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all border border-slate-200">
-                        <i class="fas fa-file-import"></i> Importar Banco (CSV)
+                    <button onclick="toggleCsvModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 border border-slate-200">
+                        <i class="fas fa-file-import"></i> Importar CSV
                     </button>
                 </div>
 
-                <!-- Main Section -->
+                <!-- Dashboard -->
                 <div class="lg:col-span-3 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                         <div class="glass-card p-6 rounded-3xl border-b-4 border-emerald-500">
                             <p class="text-[10px] text-slate-400 font-black uppercase">Ingresos Mes</p>
-                            <h3 id="month-income" class="text-3xl font-bold text-slate-800">0.00 €</h3>
+                            <h3 id="month-income" class="text-2xl font-bold">0.00 €</h3>
                         </div>
                         <div class="glass-card p-6 rounded-3xl border-b-4 border-rose-500">
                             <p class="text-[10px] text-slate-400 font-black uppercase">Gastos Mes</p>
-                            <h3 id="month-expense" class="text-3xl font-bold text-slate-800">0.00 €</h3>
+                            <h3 id="month-expense" class="text-2xl font-bold">0.00 €</h3>
                         </div>
                         <div class="glass-card p-6 rounded-3xl border-b-4 border-indigo-500 bg-indigo-50/30">
-                            <p class="text-[10px] text-indigo-400 font-black uppercase">Capacidad Ahorro</p>
-                            <h3 id="month-balance" class="text-3xl font-bold text-indigo-700">0.00 €</h3>
+                            <p class="text-[10px] text-indigo-400 font-black uppercase">Balance Mes</p>
+                            <h3 id="month-balance" class="text-2xl font-bold text-indigo-700">0.00 €</h3>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- METAS RESTAURADAS -->
                         <section class="glass-card p-6 rounded-3xl shadow-sm">
-                            <div class="flex justify-between mb-6 items-center">
+                            <div class="flex justify-between items-center mb-6">
                                 <div>
                                     <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Metas en Cascada</h2>
-                                    <p class="text-[9px] text-indigo-500 font-bold uppercase mt-1">Disponible: <span id="available-savings-display">0.00 €</span></p>
+                                    <p class="text-[9px] text-indigo-500 font-bold uppercase">Disponible: <span id="available-savings-display">0.00 €</span></p>
                                 </div>
                                 <button onclick="toggleGoalModal()" class="text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase hover:bg-indigo-100 transition-colors">Nueva Meta</button>
                             </div>
@@ -126,16 +107,15 @@
                         </section>
 
                         <section class="glass-card p-6 rounded-3xl">
-                            <h2 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest">Gastos por Categoría</h2>
+                            <h2 class="text-xs font-black text-slate-400 uppercase mb-6">Gastos por Categoría</h2>
                             <div class="h-[220px]"><canvas id="categoryChart"></canvas></div>
                         </section>
                     </div>
 
-                    <!-- TABLA CON BOTÓN EDITAR -->
-                    <section class="glass-card rounded-3xl overflow-hidden shadow-sm">
+                    <section class="glass-card rounded-3xl overflow-hidden">
                         <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                            <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest">Historial del Periodo</h2>
-                            <button onclick="openTransactionModal()" class="bg-indigo-600 text-white text-[10px] px-4 py-2 rounded-xl font-black uppercase hover:bg-indigo-700">+ Registro Manual</button>
+                            <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest">Movimientos</h2>
+                            <button onclick="openTransactionModal()" class="bg-indigo-600 text-white text-[10px] px-4 py-2 rounded-xl font-black uppercase hover:bg-indigo-700">+ Manual</button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left">
@@ -144,79 +124,84 @@
                                         <th class="px-8 py-4">Fecha</th>
                                         <th class="px-8 py-4">Concepto / Cuenta</th>
                                         <th class="px-8 py-4 text-right">Importe</th>
-                                        <th class="px-8 py-4 text-center">Acciones</th>
+                                        <th class="px-8 py-4 text-center">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody id="transaction-list" class="divide-y divide-slate-100 bg-white"></tbody>
                             </table>
                         </div>
-                        <div id="empty-state" class="hidden py-16 text-center text-slate-300">
-                             <p class="text-xs font-bold uppercase tracking-widest">Sin movimientos registrados</p>
-                        </div>
+                        <div id="empty-state" class="hidden py-16 text-center text-slate-300 font-bold uppercase text-xs">Sin datos</div>
                     </section>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- MODAL: TRANSACCIÓN (MEJORADO PARA EDICIÓN) -->
+    <!-- MODALES -->
     <div id="modal-transaction" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl">
-            <h3 id="transaction-modal-title" class="text-xl font-bold mb-6 text-slate-800">Registrar Movimiento</h3>
+            <h3 id="tx-modal-title" class="text-xl font-bold mb-6">Registrar Movimiento</h3>
             <form id="finance-form" class="space-y-4">
-                <input type="hidden" id="edit-transaction-id">
-                
-                <div id="op-type-selector" class="flex p-1 bg-slate-100 rounded-2xl mb-4">
+                <input type="hidden" id="edit-tx-id">
+                <div id="tx-type-selector" class="flex p-1 bg-slate-100 rounded-2xl mb-4">
                     <button type="button" onclick="setOpType('expense')" id="btn-expense" class="flex-1 py-2 text-xs rounded-xl bg-white shadow-sm font-black text-indigo-600 uppercase">Gasto</button>
                     <button type="button" onclick="setOpType('income')" id="btn-income" class="flex-1 py-2 text-xs rounded-xl font-black text-slate-400 uppercase">Ingreso</button>
                     <button type="button" onclick="setOpType('transfer')" id="btn-transfer" class="flex-1 py-2 text-xs rounded-xl font-black text-slate-400 uppercase">Traspaso</button>
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Concepto</label>
-                        <input type="text" id="description" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Importe (€)</label>
-                        <input type="number" id="amount" step="0.01" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm font-bold outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Cuenta</label>
-                        <select id="account-select" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm outline-none"></select>
-                    </div>
+                    <div class="col-span-2"><input type="text" id="description" placeholder="Concepto" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"></div>
+                    <input type="number" id="amount" step="0.01" placeholder="Importe €" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl font-bold">
+                    <select id="account-select" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl"></select>
                 </div>
-
-                <div id="transfer-target-div" class="hidden">
-                    <label class="block text-[10px] font-black text-indigo-400 uppercase mb-1">Cuenta Destino</label>
-                    <select id="transfer-target" class="w-full px-4 py-3 bg-indigo-50 border border-indigo-100 rounded-2xl text-sm outline-none"></select>
-                </div>
-
+                <div id="transfer-target-div" class="hidden"><select id="transfer-target" class="w-full px-4 py-3 bg-indigo-50 border rounded-2xl"></select></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Categoría</label>
-                        <select id="category" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm outline-none"></select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Fecha</label>
-                        <input type="date" id="date" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm outline-none">
-                    </div>
+                    <select id="category" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl"></select>
+                    <input type="date" id="date" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
                 </div>
-
-                <div id="recurring-check-container" class="flex items-center gap-2 py-2">
-                    <input type="checkbox" id="is-recurring-template" class="w-4 h-4 text-indigo-600 rounded">
-                    <label for="is-recurring-template" class="text-xs text-slate-500 font-bold italic">Guardar como gasto fijo mensual</label>
-                </div>
-
-                <div class="flex gap-3 mt-6">
-                    <button type="button" onclick="toggleTransactionModal()" class="flex-1 py-3 bg-slate-100 rounded-2xl text-xs font-black uppercase text-slate-500">Cerrar</button>
-                    <button type="submit" id="transaction-save-btn" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase shadow-lg">Confirmar</button>
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="toggleTransactionModal()" class="flex-1 py-3 bg-slate-100 rounded-2xl font-bold">CANCELAR</button>
+                    <button type="submit" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg">CONFIRMAR</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- OTROS MODALES (CUENTAS, CSV, GOALS, SETTINGS) -->
+    <div id="modal-goal" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl">
+            <h3 class="text-xl font-bold mb-6 text-center">Nueva Meta</h3>
+            <div class="space-y-4">
+                <input type="text" id="goal-name" placeholder="Nombre" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
+                <input type="number" id="goal-target" placeholder="Importe (€)" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
+                <button onclick="addNewGoal()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase">Crear Meta</button>
+                <button onclick="toggleGoalModal()" class="w-full py-2 text-slate-400 font-bold text-xs uppercase">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-settings" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
+            <h3 class="text-xl font-bold mb-6 text-slate-800 tracking-tight text-center">Ajustes Globales</h3>
+            <div class="space-y-6">
+                <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100">
+                    <label class="block text-[9px] font-black text-rose-500 uppercase mb-2">Escudo Emergencia (€)</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="emergency-input" class="w-full px-3 py-2 border rounded-xl font-bold text-rose-700">
+                        <select id="emergency-account-select" class="w-full px-3 py-2 border rounded-xl text-[10px]"></select>
+                    </div>
+                </div>
+                <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                    <label class="block text-[9px] font-black text-indigo-500 uppercase mb-2">Mínimo en Cuenta Corriente (€)</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="min-checking-input" class="w-full px-3 py-2 border rounded-xl font-bold text-indigo-700">
+                        <select id="sweep-account-select" class="w-full px-3 py-2 border rounded-xl text-[10px]"></select>
+                    </div>
+                </div>
+            </div>
+            <button onclick="saveSettings()" class="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs">Guardar Cambios</button>
+            <button onclick="toggleSettingsModal()" class="w-full mt-2 text-slate-400 font-bold text-xs uppercase">Cerrar</button>
+        </div>
+    </div>
+
     <div id="modal-account" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
             <h3 id="account-modal-title" class="text-xl font-bold mb-6 text-slate-800">Nueva Cuenta</h3>
@@ -258,43 +243,13 @@
                 <div class="border rounded-2xl overflow-hidden max-h-40 overflow-y-auto">
                     <table class="w-full text-[10px]"><tbody id="csv-preview-body" class="divide-y"></tbody></table>
                 </div>
-                <button onclick="processCsv()" class="w-full py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase">Importar Movimientos</button>
+                <button onclick="processCsv()" class="w-full py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase">Importar Ahora</button>
             </div>
             <button onclick="toggleCsvModal()" class="w-full mt-2 text-slate-400 font-bold text-xs uppercase">Cancelar</button>
         </div>
     </div>
 
-    <div id="modal-goal" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
-            <h3 class="text-xl font-bold mb-6">Nueva Meta de Ahorro</h3>
-            <input type="text" id="goal-name" placeholder="Nombre" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl mb-4 outline-none">
-            <input type="number" id="goal-target" placeholder="Importe total (€)" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl mb-6 outline-none">
-            <button onclick="addNewGoal()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase">Crear Meta</button>
-            <button onclick="toggleGoalModal()" class="w-full mt-2 text-slate-400 text-xs font-bold uppercase">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="modal-settings" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
-            <h3 class="text-xl font-bold mb-6">Ajustes Globales</h3>
-            <div class="space-y-4">
-                <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100">
-                    <label class="block text-[9px] font-black text-rose-400 uppercase mb-1">Escudo de Emergencia (€)</label>
-                    <input type="number" id="emergency-input" class="w-full px-3 py-2 border rounded-xl mb-2 font-bold text-rose-700">
-                    <select id="emergency-account-select" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
-                </div>
-                <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
-                    <label class="block text-[9px] font-black text-indigo-400 uppercase mb-1">Mínimo en Cuenta Corriente (€)</label>
-                    <input type="number" id="min-checking-input" class="w-full px-3 py-2 border rounded-xl mb-2 font-bold text-indigo-700">
-                    <select id="sweep-account-select" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
-                </div>
-            </div>
-            <button onclick="saveSettings()" class="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase">Guardar Ajustes</button>
-            <button onclick="toggleSettingsModal()" class="w-full mt-2 text-slate-400 font-bold text-xs uppercase text-center w-full">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl transition-all duration-500 opacity-0 translate-y-4 z-[200] text-xs font-bold uppercase tracking-wide"></div>
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl transition-all duration-500 opacity-0 translate-y-4 z-[200] text-xs font-bold uppercase"></div>
 
     <script>
         // --- Estado Global ---
@@ -317,39 +272,27 @@
                 const res = await fetch('/api/data', { headers: { 'Authorization': authString } });
                 if (res.status === 401) throw new Error('Unauthorized');
                 const data = await res.json();
-                accounts = data.accounts || []; 
-                transactions = data.transactions || []; 
-                goals = data.goals || []; 
-                recurring = data.recurring || []; 
-                settings = data.settings || { emergencyFund: 0, minChecking: 0, emergencyAccountId: '', sweepAccountId: '' };
-                
+                accounts = data.accounts || []; transactions = data.transactions || []; goals = data.goals || []; settings = data.settings || {};
                 localStorage.setItem('finance_auth', authString);
                 document.getElementById('login-overlay').classList.add('hidden');
                 document.getElementById('app-content').classList.remove('opacity-0');
                 updateUI(); updateSelects();
             } catch (e) { document.getElementById('login-error').classList.remove('hidden'); }
         }
-
         async function saveData() {
-            await fetch('/api/save', { 
-                method: 'POST', 
-                headers: { 'Authorization': authString, 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ accounts, transactions, goals, recurring, settings }) 
-            });
+            await fetch('/api/save', { method: 'POST', headers: { 'Authorization': authString, 'Content-Type': 'application/json' }, body: JSON.stringify({ accounts, transactions, goals, recurring, settings }) });
             updateUI();
         }
 
-        // --- Transacciones (Nueva y Editar) ---
+        // --- Transacciones (Edición con Cambio de Tipo) ---
         function toggleTransactionModal() { document.getElementById('modal-transaction').classList.toggle('hidden'); }
 
         function openTransactionModal(id = null) {
-            const title = document.getElementById('transaction-modal-title');
-            const saveBtn = document.getElementById('transaction-save-btn');
-            const editIdInput = document.getElementById('edit-transaction-id');
-            const opSelector = document.getElementById('op-type-selector');
-            const recCheck = document.getElementById('recurring-check-container');
             const form = document.getElementById('finance-form');
-
+            const title = document.getElementById('tx-modal-title');
+            const editId = document.getElementById('edit-tx-id');
+            const typeSelector = document.getElementById('tx-type-selector');
+            
             form.reset();
             document.getElementById('date').valueAsDate = new Date();
 
@@ -357,22 +300,20 @@
                 const tx = transactions.find(t => t.id == id);
                 if (!tx) return;
                 title.textContent = "Editar Movimiento";
-                saveBtn.textContent = "Actualizar";
-                editIdInput.value = id;
+                editId.value = id;
                 document.getElementById('description').value = tx.description;
                 document.getElementById('amount').value = tx.amount;
                 document.getElementById('account-select').value = tx.accountId;
                 document.getElementById('category').value = tx.category;
                 document.getElementById('date').value = tx.date;
+                
+                // Permitimos cambio de tipo incluso en edición
                 setOpType(tx.type);
-                opSelector.classList.add('opacity-40', 'pointer-events-none');
-                recCheck.classList.add('hidden');
+                typeSelector.classList.remove('opacity-40', 'pointer-events-none');
             } else {
                 title.textContent = "Registrar Movimiento";
-                saveBtn.textContent = "Guardar";
-                editIdInput.value = "";
-                opSelector.classList.remove('opacity-40', 'pointer-events-none');
-                recCheck.classList.remove('hidden');
+                editId.value = "";
+                typeSelector.classList.remove('opacity-40', 'pointer-events-none');
                 setOpType('expense');
             }
             toggleTransactionModal();
@@ -380,7 +321,7 @@
 
         document.getElementById('finance-form').onsubmit = (e) => {
             e.preventDefault();
-            const editId = document.getElementById('edit-transaction-id').value;
+            const editId = document.getElementById('edit-tx-id').value;
             const desc = document.getElementById('description').value;
             const amt = parseFloat(document.getElementById('amount').value);
             const accId = document.getElementById('account-select').value;
@@ -389,148 +330,65 @@
 
             if (editId) {
                 const idx = transactions.findIndex(t => t.id == editId);
-                transactions[idx] = { ...transactions[idx], description: desc, amount: amt, accountId: accId, category: cat, date: date };
+                const oldTx = transactions[idx];
+                
+                // Si cambiamos el tipo a transferencia, manejamos la creación del par
+                if (currentOpType === 'transfer' && oldTx.type !== 'transfer') {
+                    const targetId = document.getElementById('transfer-target').value;
+                    const tid = Date.now();
+                    // Actualizamos el actual como origen (egreso)
+                    transactions[idx] = { ...oldTx, description: `Traspaso: ${desc}`, amount: amt, accountId: accId, category: 'Traspaso', date, type: 'expense', isTransfer: true };
+                    // Creamos el par de destino (ingreso)
+                    transactions.push({ id: tid + 1, description: `Traspaso: ${desc}`, amount: amt, type: 'income', category: 'Traspaso', date, accountId: targetId, isTransfer: true });
+                } else {
+                    // Edición normal (incluso cambio de gasto a ingreso)
+                    transactions[idx] = { ...oldTx, description: desc, amount: amt, accountId: accId, category: cat, date: date, type: currentOpType };
+                }
                 showToast("Actualizado correctamente");
             } else {
-                if (document.getElementById('is-recurring-template').checked) {
-                    recurring.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, accountId: accId });
-                }
+                // Registro nuevo
                 if (currentOpType === 'transfer') {
                     const targetId = document.getElementById('transfer-target').value, tid = Date.now();
                     transactions.push({ id: tid, description: `Traspaso: ${desc}`, amount: amt, type: 'expense', category: 'Traspaso', date, accountId: accId, isTransfer: true });
                     transactions.push({ id: tid + 1, description: `Traspaso: ${desc}`, amount: amt, type: 'income', category: 'Traspaso', date, accountId: targetId, isTransfer: true });
                 } else {
-                    transactions.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, date, accountId: accId });
+                    transactions.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, date: date, accountId: accId });
                 }
                 showToast("Movimiento registrado");
             }
             saveData(); toggleTransactionModal();
         };
 
-        // --- Cuentas ---
-        function toggleAccountModal() { document.getElementById('modal-account').classList.toggle('hidden'); }
-        function openAccountModal(id = null) {
-            const container = document.getElementById('initial-balance-container');
-            if (id) {
-                const acc = accounts.find(a => a.id === id);
-                document.getElementById('account-modal-title').textContent = "Editar Cuenta";
-                document.getElementById('edit-account-id').value = id;
-                document.getElementById('acc-name').value = acc.name;
-                document.getElementById('acc-type').value = acc.type;
-                document.getElementById('acc-performance').value = acc.performance;
-                container.classList.add('hidden');
-            } else {
-                document.getElementById('account-modal-title').textContent = "Nueva Cuenta";
-                document.getElementById('edit-account-id').value = "";
-                document.getElementById('acc-name').value = "";
-                document.getElementById('acc-performance').value = 0;
-                document.getElementById('acc-initial-balance').value = 0;
-                container.classList.remove('hidden');
-            }
-            toggleAccountModal();
-        }
-
-        function handleAccountAction() {
-            const id = document.getElementById('edit-account-id').value, name = document.getElementById('acc-name').value, type = document.getElementById('acc-type').value, perf = parseFloat(document.getElementById('acc-performance').value) || 0;
-            if (!name) return;
-            if (id) {
-                const i = accounts.findIndex(a => a.id === id);
-                accounts[i] = { ...accounts[i], name, type, performance: perf };
-            } else {
-                const newAcc = { id: 'acc_' + Date.now(), name, type, performance: perf };
-                accounts.push(newAcc);
-                const init = parseFloat(document.getElementById('acc-initial-balance').value) || 0;
-                if (init !== 0) transactions.push({ id: Date.now(), description: 'Saldo Inicial', amount: Math.abs(init), type: init > 0 ? 'income' : 'expense', category: 'Otros', date: new Date().toISOString().split('T')[0], accountId: newAcc.id });
-            }
-            saveData(); toggleAccountModal(); updateSelects();
-        }
-
-        function deleteAccount(id) { if (confirm("¿Borrar cuenta y movimientos?")) { accounts = accounts.filter(a => a.id !== id); transactions = transactions.filter(t => t.accountId !== id); saveData(); updateSelects(); } }
-
-        // --- CSV ---
-        function toggleCsvModal() { document.getElementById('modal-csv').classList.toggle('hidden'); resetCsvSteps(); }
-        function resetCsvSteps() { document.getElementById('csv-step-1').classList.remove('hidden'); document.getElementById('csv-step-2').classList.add('hidden'); csvRawData = []; }
-        const dropZone = document.getElementById('drop-zone');
-        dropZone.onclick = () => document.getElementById('csv-file').click();
-        dropZone.ondrop = (e) => { e.preventDefault(); handleCsvFile(e.dataTransfer.files[0]); };
-        document.getElementById('csv-file').onchange = (e) => handleCsvFile(e.target.files[0]);
-        function handleCsvFile(file) {
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const rows = e.target.result.split(/\r?\n/).filter(r => r.trim() !== "").map(row => {
-                    const sep = row.includes(";") ? ";" : (row.includes("\t") ? "\t" : ",");
-                    return row.split(sep).map(cell => cell.replace(/^["']|["']$/g, '').trim());
-                });
-                if (rows.length > 0) { csvRawData = rows; showCsvMapping(); }
-            };
-            reader.readAsText(file, "ISO-8859-1");
-        }
-        function showCsvMapping() {
-            const headers = csvRawData[0];
-            ['col-date', 'col-desc', 'col-amount'].forEach(id => document.getElementById(id).innerHTML = headers.map((h, i) => `<option value="${i}">${h || `Col ${i+1}`}</option>`).join(''));
-            document.getElementById('csv-step-1').classList.add('hidden'); document.getElementById('csv-step-2').classList.remove('hidden'); updateSelects();
-        }
-        function processCsv() {
-            const dI = document.getElementById('col-date').value, cI = document.getElementById('col-desc').value, aI = document.getElementById('col-amount').value, accId = document.getElementById('csv-account-target').value;
-            let count = 0;
-            csvRawData.slice(1).forEach(row => {
-                if (!row[dI] || !row[aI]) return;
-                let cleanAmt = row[aI].replace(/\./g, '').replace(',', '.'), amt = parseFloat(cleanAmt); if (isNaN(amt)) return;
-                let dp = row[dI].split(/[\/\-\.]/), dateIso = dp.length === 3 ? (dp[0].length===4 ? `${dp[0]}-${dp[1]}-${dp[2]}` : `${dp[2]}-${dp[1]}-${dp[0]}`) : row[dI];
-                if (!transactions.some(t => t.accountId === accId && t.amount === Math.abs(amt) && t.date === dateIso && t.description === row[cI])) {
-                    transactions.push({ id: Date.now() + Math.random(), description: row[cI] || "Importado", amount: Math.abs(amt), type: amt >= 0 ? 'income' : 'expense', category: 'Importado', date: dateIso, accountId: accId });
-                    count++;
-                }
-            });
-            saveData(); toggleCsvModal(); showToast(`Importados ${count} movimientos`);
-        }
-
-        // --- UI y Metas ---
+        // --- UI y Lógica Estándar ---
         function calculateBalance(id) { return transactions.filter(t => t.accountId === id).reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0); }
-        function toggleGoalModal() { document.getElementById('modal-goal').classList.toggle('hidden'); }
-        function toggleSettingsModal() { 
-            document.getElementById('emergency-input').value = settings.emergencyFund;
-            document.getElementById('min-checking-input').value = settings.minChecking;
-            document.getElementById('emergency-account-select').value = settings.emergencyAccountId;
-            document.getElementById('sweep-account-select').value = settings.sweepAccountId;
-            document.getElementById('modal-settings').classList.toggle('hidden'); 
-        }
-        function saveSettings() {
-            settings.emergencyFund = parseFloat(document.getElementById('emergency-input').value) || 0;
-            settings.minChecking = parseFloat(document.getElementById('min-checking-input').value) || 0;
-            settings.emergencyAccountId = document.getElementById('emergency-account-select').value;
-            settings.sweepAccountId = document.getElementById('sweep-account-select').value;
-            saveData(); toggleSettingsModal();
-        }
 
         function updateUI() {
             const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
             document.getElementById('current-month-display').textContent = `${months[currentMonth]} ${currentYear}`;
-            document.getElementById('reserve-display').textContent = `${(settings.emergencyFund || 0).toFixed(2)} €`;
-
+            
             let netWorth = 0; const container = document.getElementById('accounts-list-container'); container.innerHTML = '';
             accounts.forEach(acc => {
                 const bal = calculateBalance(acc.id); netWorth += bal;
-                container.innerHTML += `<div class="glass-card p-4 rounded-2xl border-l-4 ${acc.type === 'checking' ? 'border-indigo-500' : 'border-emerald-500'}"><div class="flex justify-between items-start"><div><span class="text-[9px] font-bold uppercase text-slate-400">${acc.type}</span><h4 class="text-xs font-bold text-slate-700">${acc.name}</h4></div><div class="flex gap-2"><button onclick="openAccountModal('${acc.id}')" class="text-slate-300 hover:text-indigo-500"><i class="fas fa-cog text-[10px]"></i></button><button onclick="deleteAccount('${acc.id}')" class="text-slate-300 hover:text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div></div><p class="mt-2 text-lg font-black">${bal.toFixed(2)} €</p></div>`;
+                container.innerHTML += `<div class="glass-card p-4 rounded-2xl border-l-4 ${acc.type === 'checking' ? 'border-indigo-500' : 'border-emerald-500'}"><div class="flex justify-between items-start"><div><span class="text-[9px] font-bold uppercase text-slate-400">${acc.name}</span></div><div class="flex gap-2"><button onclick="openAccountModal('${acc.id}')" class="text-slate-300 hover:text-indigo-500"><i class="fas fa-cog text-[10px]"></i></button><button onclick="deleteAccount('${acc.id}')" class="text-slate-300 hover:text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div></div><p class="mt-2 text-lg font-black">${bal.toFixed(2)} €</p></div>`;
             });
             document.getElementById('global-balance').textContent = `${netWorth.toFixed(2)} €`;
 
             let av = 0; accounts.forEach(acc => { if (acc.type === 'savings' || acc.type === 'investment') { let bal = calculateBalance(acc.id); if (acc.id === settings.emergencyAccountId) bal = Math.max(0, bal - settings.emergencyFund); av += bal; } });
             document.getElementById('available-savings-display').textContent = `${av.toFixed(2)} €`;
+            document.getElementById('reserve-display').textContent = `${(settings.emergencyFund || 0).toFixed(2)} €`;
 
             const mS = new Date(currentYear, currentMonth, 1), mE = new Date(currentYear, currentMonth + 1, 0), thisM = transactions.filter(t => { const d = new Date(t.date); return d >= mS && d <= mE; });
             document.getElementById('month-income').textContent = `${thisM.filter(t=>t.type==='income'&&!t.isTransfer).reduce((s,t)=>s+t.amount,0).toFixed(2)} €`;
             document.getElementById('month-expense').textContent = `${thisM.filter(t=>t.type==='expense'&&!t.isTransfer).reduce((s,t)=>s+t.amount,0).toFixed(2)} €`;
             document.getElementById('month-balance').textContent = `${(thisM.filter(t=>t.type==='income'&&!t.isTransfer).reduce((s,t)=>s+t.amount,0) - thisM.filter(t=>t.type==='expense'&&!t.isTransfer).reduce((s,t)=>s+t.amount,0)).toFixed(2)} €`;
 
-            renderTable(thisM); renderTemplates(); renderGoalsCascada(av); renderCharts(thisM); checkAutomation();
+            renderTable(thisM); renderGoalsCascada(av); renderCharts(thisM);
         }
 
         function renderTable(txs) {
             document.getElementById('transaction-list').innerHTML = txs.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>`
                 <tr class="hover:bg-slate-50 group">
-                    <td class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase">${new Date(t.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</td>
+                    <td class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase">${new Date(t.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</td>
                     <td class="px-8 py-4">
                         <div class="text-sm font-bold text-slate-800">${t.description}</div>
                         <div class="text-[9px] text-slate-400 font-bold uppercase">${accounts.find(a=>a.id===t.accountId)?.name || '...'} • ${t.category}</div>
@@ -546,51 +404,78 @@
             document.getElementById('empty-state').classList.toggle('hidden', txs.length > 0);
         }
 
-        function renderTemplates() { document.getElementById('recurring-templates-container').innerHTML = recurring.map(t => `<div class="flex justify-between items-center bg-slate-50 px-4 py-2 rounded-xl group font-bold"><p class="truncate mr-2">${t.description}</p><button onclick="deleteTemplate(${t.id})" class="text-slate-200 group-hover:text-rose-400"><i class="fas fa-times"></i></button></div>`).join(''); }
-        
-        function renderGoalsCascada(available) {
-            let tempAv = available; document.getElementById('goals-container').innerHTML = goals.length === 0 ? '<p class="text-center py-8 opacity-20 text-xs font-bold">SIN METAS</p>' : '';
-            goals.forEach((g, idx) => {
-                const filled = Math.min(tempAv, g.target), perc = (filled/g.target)*100; tempAv -= filled; const done = perc >= 100;
-                document.getElementById('goals-container').innerHTML += `<div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm relative group" draggable="true" ondragstart="dragSourceIndex=${idx}" ondrop="handleDrop(event, ${idx})" ondragover="event.preventDefault()"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-700">${g.name}</p><p class="text-xs font-black ${done?'text-emerald-500':'text-indigo-600'}">${perc.toFixed(0)}%</p></div><div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-4"><div class="h-full ${done?'bg-emerald-500':'bg-indigo-500'} progress-bar" style="width: ${perc}%"></div></div><div class="flex justify-between items-center text-[9px] font-bold uppercase"><button onclick="deleteGoal(${g.id})" class="text-slate-300 hover:text-rose-500">Eliminar</button>${done?`<button onclick="completeGoal(${g.id},'${g.name}',${g.target})" class="bg-emerald-600 text-white px-3 py-1 rounded-lg shadow-sm">COBRAR</button>`:`<span class="text-slate-400">Restan ${(g.target-filled).toFixed(0)}€</span>`}</div></div>`;
-            });
-        }
-
-        function renderCharts(txs) {
-            const ctx = document.getElementById('categoryChart')?.getContext('2d'); if(!ctx) return;
-            const exp = txs.filter(t=>t.type==='expense'&&!t.isTransfer), cats = [...new Set(exp.map(t=>t.category))];
-            const data = cats.map(c=>exp.filter(t=>t.category===c).reduce((s,t)=>s+t.amount,0));
-            if(catChart) catChart.destroy();
-            catChart = new Chart(ctx, { type: 'doughnut', data: { labels: cats, datasets: [{ data, backgroundColor: ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#94a3b8'], borderWidth: 4 }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } }, cutout: '80%' } });
-        }
-
+        // Utils
         function updateSelects() {
             const opts = accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
             ['account-select','transfer-target','emergency-account-select','sweep-account-select','csv-account-target'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = opts; });
             document.getElementById('category').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
         }
-
-        function changeMonth(dir) { currentMonth += dir; if(currentMonth<0){currentMonth=11;currentYear--} if(currentMonth>11){currentMonth=0;currentYear++} updateUI(); }
         function setOpType(t) { currentOpType = t; ['expense','income','transfer'].forEach(x=>document.getElementById('btn-'+x).className = (x===t)?"flex-1 py-2 text-xs rounded-xl bg-white shadow-sm font-black text-indigo-600 uppercase":"flex-1 py-2 text-xs rounded-xl font-black text-slate-400 uppercase"); document.getElementById('transfer-target-div').classList.toggle('hidden', t!=='transfer'); }
-        function deleteTransaction(id) { if(confirm("¿Borrar este movimiento?")) { transactions = transactions.filter(t=>t.id!=id); saveData(); } }
-        function deleteTemplate(id) { recurring = recurring.filter(t=>t.id!=id); saveData(); }
-        function deleteGoal(id) { goals = goals.filter(g=>g.id!=id); saveData(); }
-        function handleDrop(e, tIdx) { e.preventDefault(); if (dragSourceIndex === tIdx) return; const temp = goals.splice(dragSourceIndex, 1)[0]; goals.splice(tIdx, 0, temp); saveData(); }
+        function deleteTransaction(id) { if(confirm("¿Borrar?")) { transactions = transactions.filter(t=>t.id != id); saveData(); } }
+        function toggleGoalModal() { document.getElementById('modal-goal').classList.toggle('hidden'); }
         function addNewGoal() { const n = document.getElementById('goal-name').value, t = parseFloat(document.getElementById('goal-target').value); if(n && t) { goals.push({id:Date.now(), name:n, target:t}); saveData(); toggleGoalModal(); } }
-        function showToast(m, c="indigo") { const t = document.getElementById('toast'); t.textContent = m; t.className = `fixed bottom-6 right-6 bg-${c==='red'?'rose-600':c==='emerald'?'emerald-600':'slate-900'} text-white px-8 py-4 rounded-2xl shadow-2xl transition-all opacity-100 z-[200]`; setTimeout(() => t.classList.add('opacity-0'), 3500); }
-        function checkAutomation() { 
-            const alert = document.getElementById('automation-alert');
-            const miss = recurring.some(r => !transactions.filter(t=>new Date(t.date)>=new Date(currentYear, currentMonth, 1)).some(d => d.description === r.description));
-            if(alert) alert.classList.toggle('hidden', !miss);
+        function deleteGoal(id) { goals = goals.filter(g=>g.id!=id); saveData(); }
+        function changeMonth(dir) { currentMonth += dir; if(currentMonth<0){currentMonth=11;currentYear--} if(currentMonth>11){currentMonth=0;currentYear++} updateUI(); }
+        function toggleCsvModal() { document.getElementById('modal-csv').classList.toggle('hidden'); }
+        function toggleSettingsModal() { document.getElementById('modal-settings').classList.toggle('hidden'); }
+        function showToast(m) { const t = document.getElementById('toast'); t.textContent = m; t.className = "fixed bottom-6 right-6 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl transition-all opacity-100 z-[200]"; setTimeout(()=>t.classList.add('opacity-0'), 3000); }
+        function renderGoalsCascada(available) {
+            let tempAv = available; document.getElementById('goals-container').innerHTML = goals.length === 0 ? '<p class="text-center py-8 opacity-20 text-xs font-bold uppercase">Sin metas</p>' : '';
+            goals.forEach((g, idx) => {
+                const filled = Math.min(tempAv, g.target), perc = (filled/g.target)*100; tempAv -= filled; const done = perc >= 100;
+                document.getElementById('goals-container').innerHTML += `<div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm relative group"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-700">${g.name}</p><p class="text-xs font-black ${done?'text-emerald-500':'text-indigo-600'}">${perc.toFixed(0)}%</p></div><div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-4"><div class="h-full ${done?'bg-emerald-500':'bg-indigo-500'} progress-bar" style="width: ${perc}%"></div></div><div class="flex justify-between items-center text-[9px] font-bold uppercase"><button onclick="deleteGoal(${g.id})" class="text-slate-300 hover:text-rose-500">Eliminar</button>${done?'<span class="text-emerald-500 font-black">LISTO</span>':`<span class="text-slate-400">Faltan ${(g.target-filled).toFixed(0)}€</span>`}</div></div>`;
+            });
         }
-        async function applyAutomation() {
-            const mS = new Date(currentYear, currentMonth, 1), ds = `${currentYear}-${(currentMonth+1).toString().padStart(2,'0')}-01`, done = transactions.filter(t=>new Date(t.date)>=mS);
-            recurring.forEach(r => { if(!done.some(d => d.description === r.description)) transactions.push({...r, id:Date.now()+Math.random(), date:ds}); });
-            const src = accounts.find(a=>a.id===settings.sweepAccountId), tgt = accounts.find(a=>a.id===settings.emergencyAccountId) || accounts.find(a=>a.type==='savings');
-            if(src && tgt && settings.minChecking > 0) { const bal = calculateBalance(src.id); if(bal > settings.minChecking) { const diff = bal - settings.minChecking, tid = Date.now(); transactions.push({id:tid, description:'Barrido Automático', amount:diff, type:'expense', category:'Traspaso', date:ds, accountId:src.id, isTransfer:true}); transactions.push({id:tid+1, description:'Barrido Automático', amount:diff, type:'income', category:'Traspaso', date:ds, accountId:tgt.id, isTransfer:true}); } }
-            saveData(); showToast("Optimización completada");
+        function renderCharts(txs) {
+            const ctx = document.getElementById('categoryChart')?.getContext('2d'); if(!ctx) return;
+            const exp = txs.filter(t=>t.type==='expense'&&!t.isTransfer), cats = [...new Set(exp.map(t=>t.category))];
+            const data = cats.map(c=>exp.filter(t=>t.category===c).reduce((s,t)=>s+t.amount,0));
+            if(catChart) catChart.destroy();
+            catChart = new Chart(ctx, { type: 'doughnut', data: { labels: cats, datasets: [{ data, backgroundColor: ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6'], borderWidth: 4 }] }, options: { maintainAspectRatio: false, cutout: '80%' } });
         }
-        function completeGoal(id, name, amount) { const acc = accounts.find(a => a.id === settings.emergencyAccountId) || accounts.find(a => a.type === 'savings'); if(!acc) return showToast("No hay cuenta para pagar", "red"); if(confirm(`¿Cobrar meta? Se descontará de ${acc.name}`)) { transactions.push({ id: Date.now(), description: `Logro: ${name}`, amount, type: 'expense', category: 'Metas', date: new Date().toISOString().split('T')[0], accountId: acc.id }); goals = goals.filter(g => g.id !== id); saveData(); } }
+        function saveSettings() {
+            settings.emergencyFund = parseFloat(document.getElementById('emergency-input').value) || 0;
+            settings.minChecking = parseFloat(document.getElementById('min-checking-input').value) || 0;
+            settings.emergencyAccountId = document.getElementById('emergency-account-select').value;
+            settings.sweepAccountId = document.getElementById('sweep-account-select').value;
+            saveData(); toggleSettingsModal();
+        }
+        function openAccountModal(id = null) {
+            const initialContainer = document.getElementById('initial-balance-container');
+            if (id) {
+                const acc = accounts.find(a => a.id === id);
+                document.getElementById('account-modal-title').textContent = "Editar Cuenta";
+                document.getElementById('edit-account-id').value = id;
+                document.getElementById('acc-name').value = acc.name;
+                document.getElementById('acc-type').value = acc.type;
+                document.getElementById('acc-performance').value = acc.performance;
+                initialContainer.classList.add('hidden');
+            } else {
+                document.getElementById('account-modal-title').textContent = "Nueva Cuenta";
+                document.getElementById('edit-account-id').value = "";
+                document.getElementById('acc-name').value = "";
+                document.getElementById('acc-performance').value = 0;
+                document.getElementById('acc-initial-balance').value = 0;
+                initialContainer.classList.remove('hidden');
+            }
+            toggleAccountModal();
+        }
+        function handleAccountAction() {
+            const id = document.getElementById('edit-account-id').value, name = document.getElementById('acc-name').value, type = document.getElementById('acc-type').value, perf = parseFloat(document.getElementById('acc-performance').value) || 0;
+            if (!name) return;
+            if (id) {
+                const i = accounts.findIndex(a => a.id === id);
+                accounts[i] = { ...accounts[i], name, type, performance: perf };
+            } else {
+                const newAcc = { id: 'acc_' + Date.now(), name, type, performance: perf };
+                accounts.push(newAcc);
+                const initial = parseFloat(document.getElementById('acc-initial-balance').value) || 0;
+                if (initial !== 0) transactions.push({ id: Date.now(), description: 'Saldo Inicial', amount: Math.abs(initial), type: initial > 0 ? 'income' : 'expense', category: 'Otros', date: new Date().toISOString().split('T')[0], accountId: newAcc.id });
+            }
+            saveData(); toggleAccountModal(); updateSelects();
+        }
+        function deleteAccount(id) { if (confirm("¿Borrar cuenta y movimientos?")) { accounts = accounts.filter(a => a.id !== id); transactions = transactions.filter(t => t.accountId !== id); saveData(); updateSelects(); } }
+        function toggleAccountModal() { document.getElementById('modal-account').classList.toggle('hidden'); }
 
         window.onload = () => { if(authString) fetchData(); };
     </script>
