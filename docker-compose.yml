@@ -2,14 +2,15 @@ version: '3.8'
 
 services:
   finance-app:
-    build: .
+    # Docker descargará y construirá todo desde tu repo automáticamente
+    build: [https://github.com/jorgeal94/myfinance.git](https://github.com/jorgeal94/myfinance.git)
     container_name: myfinance_pro
     ports:
       - "3000:3000"
     environment:
-      - FINANCE_USER=${FINANCE_USER:-admin}    # Cambiar en Dockge/env
-      - FINANCE_PASS=${FINANCE_PASS:-admin123} # Cambiar en Dockge/env
+      - FINANCE_USER=${FINANCE_USER:-admin}
+      - FINANCE_PASS=${FINANCE_PASS:-admin123}
       - PORT=3000
     volumes:
-      - ./data:/usr/src/app/data              # Persistencia de datos local
+      - ./data:/usr/src/app/data
     restart: unless-stopped
