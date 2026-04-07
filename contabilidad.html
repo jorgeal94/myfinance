@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyFinance Pro v4.6 - CSV Importer</title>
+    <title>MyFinance Pro v4.7 - Wealth Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -43,9 +43,9 @@
                     <i class="fas fa-vault text-indigo-400"></i> MyFinance <span class="text-indigo-400">Wealth</span>
                 </h1>
                 <div class="flex items-center gap-4 bg-slate-800 rounded-xl px-4 py-1.5 shadow-inner border border-slate-700">
-                    <button onclick="changeMonth(-1)" class="hover:text-indigo-400"><i class="fas fa-chevron-left"></i></button>
+                    <button onclick="changeMonth(-1)" class="hover:text-indigo-400 transition-colors"><i class="fas fa-chevron-left"></i></button>
                     <span id="current-month-display" class="font-bold min-w-[140px] text-center capitalize text-sm"></span>
-                    <button onclick="changeMonth(1)" class="hover:text-indigo-400"><i class="fas fa-chevron-right"></i></button>
+                    <button onclick="changeMonth(1)" class="hover:text-indigo-400 transition-colors"><i class="fas fa-chevron-right"></i></button>
                 </div>
                 <div class="text-right flex items-center gap-4">
                     <div>
@@ -90,10 +90,9 @@
                             <h2 class="text-xs font-black text-slate-400 uppercase">Gastos Fijos</h2>
                             <i class="fas fa-redo text-slate-300 text-xs"></i>
                         </div>
-                        <div id="recurring-templates-container" class="space-y-2"></div>
+                        <div id="recurring-templates-container" class="space-y-2 text-xs"></div>
                     </div>
 
-                    <!-- BOTÓN IMPORTAR CSV -->
                     <button onclick="toggleCsvModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all">
                         <i class="fas fa-file-import"></i> Importar Banco (CSV)
                     </button>
@@ -104,11 +103,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="glass-card p-6 rounded-3xl border-b-4 border-emerald-500">
                             <p class="text-[10px] text-slate-400 font-black uppercase">Ingresos Mes</p>
-                            <h3 id="month-income" class="text-3xl font-bold">0.00 €</h3>
+                            <h3 id="month-income" class="text-3xl font-bold text-slate-800">0.00 €</h3>
                         </div>
                         <div class="glass-card p-6 rounded-3xl border-b-4 border-rose-500">
                             <p class="text-[10px] text-slate-400 font-black uppercase">Gastos Mes</p>
-                            <h3 id="month-expense" class="text-3xl font-bold">0.00 €</h3>
+                            <h3 id="month-expense" class="text-3xl font-bold text-slate-800">0.00 €</h3>
                         </div>
                         <div class="glass-card p-6 rounded-3xl border-b-4 border-indigo-500 bg-indigo-50/30">
                             <p class="text-[10px] text-indigo-400 font-black uppercase">Capacidad Ahorro</p>
@@ -118,9 +117,12 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <section class="glass-card p-6 rounded-3xl">
-                            <div class="flex justify-between mb-6">
-                                <h2 class="text-xs font-black text-slate-400 uppercase">Metas en Cascada</h2>
-                                <p class="text-[10px] text-indigo-500 font-bold uppercase">Disponible: <span id="available-savings-display">0.00 €</span></p>
+                            <div class="flex justify-between mb-6 items-center">
+                                <div>
+                                    <h2 class="text-xs font-black text-slate-400 uppercase">Metas en Cascada</h2>
+                                    <p class="text-[9px] text-indigo-500 font-bold uppercase mt-1">Disponible: <span id="available-savings-display">0.00 €</span></p>
+                                </div>
+                                <button onclick="toggleGoalModal()" class="text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase hover:bg-indigo-100 transition-colors">Nueva Meta</button>
                             </div>
                             <div id="goals-container" class="space-y-4 min-h-[100px]"></div>
                         </section>
@@ -132,8 +134,8 @@
 
                     <section class="glass-card rounded-3xl overflow-hidden shadow-sm">
                         <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                            <h2 class="text-sm font-black text-slate-400 uppercase">Movimientos del Periodo</h2>
-                            <button onclick="toggleTransactionModal()" class="bg-indigo-600 text-white text-[10px] px-4 py-2 rounded-xl font-black uppercase">+ Manual</button>
+                            <h2 class="text-sm font-black text-slate-400 uppercase">Historial del Periodo</h2>
+                            <button onclick="openTransactionModal()" class="bg-indigo-600 text-white text-[10px] px-4 py-2 rounded-xl font-black uppercase hover:bg-indigo-700">+ Manual</button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left">
@@ -152,114 +154,70 @@
         </main>
     </div>
 
-    <!-- MODAL: IMPORTAR CSV -->
-    <div id="modal-csv" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-3xl w-full max-w-2xl shadow-2xl overflow-y-auto max-h-[90vh]">
-            <h3 class="text-xl font-bold mb-2">Importador Bancario CSV</h3>
-            <p class="text-xs text-slate-400 mb-6">Sube el extracto de tu banco. El sistema detectará duplicados automáticamente.</p>
-            
-            <div id="csv-step-1" class="space-y-6">
-                <div id="drop-zone" class="drop-zone p-12 rounded-3xl text-center cursor-pointer hover:bg-slate-50 transition-all">
-                    <i class="fas fa-cloud-upload-alt text-4xl text-indigo-200 mb-4"></i>
-                    <p class="text-sm font-bold text-slate-600">Arrastra tu archivo CSV aquí o haz clic</p>
-                    <input type="file" id="csv-file" class="hidden" accept=".csv">
-                </div>
-            </div>
-
-            <div id="csv-step-2" class="hidden space-y-6">
-                <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
-                    <label class="block text-[10px] font-black text-indigo-400 uppercase mb-2">Asignar a Cuenta</label>
-                    <select id="csv-account-target" class="w-full px-4 py-2 border rounded-xl text-sm"></select>
-                </div>
-
-                <div class="grid grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Columna Fecha</label>
-                        <select id="col-date" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Columna Concepto</label>
-                        <select id="col-desc" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Columna Importe</label>
-                        <select id="col-amount" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
-                    </div>
-                </div>
-
-                <div class="border rounded-2xl overflow-hidden">
-                    <table class="w-full text-[10px]">
-                        <thead class="bg-slate-50"><tr><th class="p-2 text-left">Vista previa de datos detectados</th></tr></thead>
-                        <tbody id="csv-preview-body" class="divide-y"></tbody>
-                    </table>
-                </div>
-
-                <div class="flex gap-3">
-                    <button onclick="toggleCsvModal()" class="flex-1 py-3 bg-slate-100 rounded-2xl text-xs font-black uppercase text-slate-500">Cancelar</button>
-                    <button onclick="processCsv()" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase shadow-lg shadow-indigo-100">Importar Movimientos</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- OTROS MODALES -->
-    <div id="modal-settings" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl">
-            <h3 class="text-xl font-bold mb-6 text-slate-800">Ajustes Globales</h3>
-            <div class="space-y-6">
-                <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100 space-y-4">
-                    <h4 class="text-[10px] font-black text-rose-500 uppercase tracking-widest">Escudo de Emergencia</h4>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="number" id="emergency-input" class="w-full px-3 py-2 border rounded-xl font-bold">
-                        <select id="emergency-account-select" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
-                    </div>
-                </div>
-                <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 space-y-4">
-                    <h4 class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Barrido Automático (Sweep)</h4>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="number" id="min-checking-input" class="w-full px-3 py-2 border rounded-xl font-bold">
-                        <select id="sweep-account-select" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
-                    </div>
-                </div>
-            </div>
-            <button onclick="saveSettings()" class="w-full mt-8 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase">Guardar Ajustes</button>
-            <button onclick="toggleSettingsModal()" class="w-full mt-2 text-slate-400 font-bold text-xs">CERRAR</button>
-        </div>
-    </div>
-
+    <!-- MODAL: TRANSACCIÓN (NUEVA / EDITAR) -->
     <div id="modal-transaction" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl">
+            <h3 id="transaction-modal-title" class="text-xl font-bold mb-6 text-slate-800">Registrar Movimiento</h3>
             <form id="finance-form" class="space-y-4">
-                <div class="flex p-1 bg-slate-100 rounded-2xl">
+                <input type="hidden" id="edit-transaction-id">
+                
+                <div id="op-type-selector" class="flex p-1 bg-slate-100 rounded-2xl mb-4">
                     <button type="button" onclick="setOpType('expense')" id="btn-expense" class="flex-1 py-2 text-xs rounded-xl bg-white shadow-sm font-black text-indigo-600 uppercase">Gasto</button>
                     <button type="button" onclick="setOpType('income')" id="btn-income" class="flex-1 py-2 text-xs rounded-xl font-black text-slate-400 uppercase">Ingreso</button>
                     <button type="button" onclick="setOpType('transfer')" id="btn-transfer" class="flex-1 py-2 text-xs rounded-xl font-black text-slate-400 uppercase">Traspaso</button>
                 </div>
-                <input type="text" id="description" placeholder="Concepto" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm">
+
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="amount" step="0.01" placeholder="Importe" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm font-bold">
-                    <select id="account-select" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm"></select>
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Concepto</label>
+                        <input type="text" id="description" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Importe (€)</label>
+                        <input type="number" id="amount" step="0.01" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm font-bold outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Cuenta</label>
+                        <select id="account-select" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm outline-none"></select>
+                    </div>
                 </div>
-                <div id="transfer-target-div" class="hidden"><select id="transfer-target" class="w-full px-4 py-3 bg-indigo-50 border rounded-2xl text-sm"></select></div>
+
+                <div id="transfer-target-div" class="hidden">
+                    <label class="block text-[10px] font-black text-indigo-400 uppercase mb-1">Cuenta Destino</label>
+                    <select id="transfer-target" class="w-full px-4 py-3 bg-indigo-50 border border-indigo-100 rounded-2xl text-sm outline-none"></select>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
-                    <select id="category" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm"></select>
-                    <input type="date" id="date" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Categoría</label>
+                        <select id="category" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm outline-none"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Fecha</label>
+                        <input type="date" id="date" required class="w-full px-4 py-3 bg-slate-50 border rounded-2xl text-sm outline-none">
+                    </div>
                 </div>
-                <div class="flex items-center gap-2"><input type="checkbox" id="is-recurring-template"> <label class="text-xs font-bold text-slate-400">Gasto fijo mensual</label></div>
-                <div class="flex gap-3">
+
+                <div id="recurring-check-div" class="flex items-center gap-2 py-2">
+                    <input type="checkbox" id="is-recurring-template" class="w-4 h-4 text-indigo-600 rounded">
+                    <label for="is-recurring-template" class="text-xs text-slate-500 font-bold italic">Guardar como movimiento recurrente</label>
+                </div>
+
+                <div class="flex gap-3 mt-6">
                     <button type="button" onclick="toggleTransactionModal()" class="flex-1 py-3 bg-slate-100 rounded-2xl text-xs font-black uppercase text-slate-500">Cerrar</button>
-                    <button type="submit" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase">Guardar</button>
+                    <button type="submit" id="transaction-save-btn" class="flex-1 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase shadow-lg">Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- OTROS MODALES (CUENTAS, CSV, GOALS, SETTINGS) -->
     <div id="modal-account" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
-            <h3 id="account-modal-title" class="text-xl font-bold mb-6 text-slate-800">Nueva Cuenta</h3>
+            <h3 id="account-modal-title" class="text-xl font-bold mb-6">Nueva Cuenta</h3>
             <input type="hidden" id="edit-account-id">
             <div class="space-y-4">
-                <input type="text" id="acc-name" placeholder="Nombre" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none">
+                <input type="text" id="acc-name" placeholder="Nombre" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
                 <select id="acc-type" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
                     <option value="checking">Corriente</option><option value="savings">Ahorro</option><option value="investment">Inversión</option>
                 </select>
@@ -275,34 +233,79 @@
         </div>
     </div>
 
+    <div id="modal-csv" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-2xl shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h3 class="text-xl font-bold mb-2">Importador Bancario CSV</h3>
+            <div id="csv-step-1" class="space-y-6">
+                <div id="drop-zone" class="drop-zone p-12 rounded-3xl text-center cursor-pointer hover:bg-slate-50 transition-all">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-indigo-200 mb-4"></i>
+                    <p class="text-sm font-bold text-slate-600">Suelta tu CSV bancario aquí</p>
+                    <input type="file" id="csv-file" class="hidden" accept=".csv">
+                </div>
+            </div>
+            <div id="csv-step-2" class="hidden space-y-6">
+                <select id="csv-account-target" class="w-full px-4 py-2 border rounded-xl text-sm"></select>
+                <div class="grid grid-cols-3 gap-4">
+                    <select id="col-date" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
+                    <select id="col-desc" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
+                    <select id="col-amount" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
+                </div>
+                <div class="border rounded-2xl overflow-hidden max-h-40 overflow-y-auto">
+                    <table class="w-full text-[10px]"><tbody id="csv-preview-body" class="divide-y"></tbody></table>
+                </div>
+                <button onclick="processCsv()" class="w-full py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase">Importar Ahora</button>
+            </div>
+            <button onclick="toggleCsvModal()" class="w-full mt-2 text-slate-400 font-bold text-xs uppercase">Cancelar</button>
+        </div>
+    </div>
+
     <div id="modal-goal" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center">
-            <h3 class="text-xl font-bold mb-6">Nueva Meta</h3>
+            <h3 class="text-xl font-bold mb-6">Nueva Meta de Ahorro</h3>
             <input type="text" id="goal-name" placeholder="Nombre" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl mb-4">
-            <input type="number" id="goal-target" placeholder="Importe (€)" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl mb-6">
-            <button onclick="addNewGoal()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase">Crear Meta</button>
-            <button onclick="toggleGoalModal()" class="w-full mt-2 text-slate-400 text-xs font-bold">CANCELAR</button>
+            <input type="number" id="goal-target" placeholder="Importe total (€)" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl mb-6">
+            <button onclick="addNewGoal()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase">Crear</button>
+            <button onclick="toggleGoalModal()" class="w-full mt-2 text-slate-400 text-xs font-bold uppercase">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="modal-settings" class="fixed inset-0 bg-slate-900/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
+            <h3 class="text-xl font-bold mb-6">Ajustes Globales</h3>
+            <div class="space-y-4">
+                <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100">
+                    <label class="block text-[9px] font-black text-rose-400 uppercase mb-1">Escudo Emergencia (€)</label>
+                    <input type="number" id="emergency-input" class="w-full px-3 py-2 border rounded-xl mb-2 font-bold">
+                    <select id="emergency-account-select" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
+                </div>
+                <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                    <label class="block text-[9px] font-black text-indigo-400 uppercase mb-1">Mínimo Corriente (€)</label>
+                    <input type="number" id="min-checking-input" class="w-full px-3 py-2 border rounded-xl mb-2 font-bold">
+                    <select id="sweep-account-select" class="w-full px-3 py-2 border rounded-xl text-xs"></select>
+                </div>
+            </div>
+            <button onclick="saveSettings()" class="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase">Guardar</button>
+            <button onclick="toggleSettingsModal()" class="w-full mt-2 text-slate-400 font-bold text-xs uppercase text-center">Cerrar</button>
         </div>
     </div>
 
     <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl transition-all duration-500 opacity-0 translate-y-4 z-[200] text-xs font-bold uppercase tracking-wide"></div>
 
     <script>
-        // --- Estado ---
+        // --- Estado Global ---
         let authString = localStorage.getItem('finance_auth') || '';
         let accounts = [], transactions = [], goals = [], recurring = [], settings = {};
         let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
-        let catChart = null, csvRawData = [], dragSourceIndex = null;
-        let currentOpType = 'expense', categories = ['Sueldo', 'Vivienda', 'Alimentación', 'Suministros', 'Inversión', 'Ocio', 'Otros'];
+        let catChart = null, csvRawData = [], dragSourceIndex = null, currentOpType = 'expense';
+        const categories = ['Sueldo', 'Vivienda', 'Alimentación', 'Suministros', 'Inversión', 'Ocio', 'Salud', 'Transporte', 'Otros', 'Importado'];
 
-        // Auth
+        // Auth y Carga
         async function attemptLogin() {
             const user = document.getElementById('login-user').value, pass = document.getElementById('login-pass').value;
             authString = 'Basic ' + btoa(user + ':' + pass); fetchData();
         }
         function logout() { localStorage.removeItem('finance_auth'); location.reload(); }
 
-        // Data Sync
         async function fetchData() {
             try {
                 const res = await fetch('/api/data', { headers: { 'Authorization': authString } });
@@ -315,73 +318,80 @@
                 updateUI(); updateSelects();
             } catch (e) { document.getElementById('login-error').classList.remove('hidden'); }
         }
+
         async function saveData() {
             await fetch('/api/save', { method: 'POST', headers: { 'Authorization': authString, 'Content-Type': 'application/json' }, body: JSON.stringify({ accounts, transactions, goals, recurring, settings }) });
             updateUI();
         }
 
-        // --- CSV IMPORTER ---
-        function toggleCsvModal() { document.getElementById('modal-csv').classList.toggle('hidden'); resetCsvSteps(); }
-        function resetCsvSteps() { document.getElementById('csv-step-1').classList.remove('hidden'); document.getElementById('csv-step-2').classList.add('hidden'); document.getElementById('csv-file').value = ""; csvRawData = []; }
+        // --- Transacciones (Nueva y Editar) ---
+        function toggleTransactionModal() { document.getElementById('modal-transaction').classList.toggle('hidden'); }
 
-        const dropZone = document.getElementById('drop-zone');
-        dropZone.onclick = () => document.getElementById('csv-file').click();
-        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('active'); };
-        dropZone.ondragleave = () => dropZone.classList.remove('active');
-        dropZone.ondrop = (e) => { e.preventDefault(); dropZone.classList.remove('active'); handleCsvFile(e.dataTransfer.files[0]); };
-        document.getElementById('csv-file').onchange = (e) => handleCsvFile(e.target.files[0]);
+        function openTransactionModal(id = null) {
+            const title = document.getElementById('transaction-modal-title');
+            const saveBtn = document.getElementById('transaction-save-btn');
+            const editIdInput = document.getElementById('edit-transaction-id');
+            const opSelector = document.getElementById('op-type-selector');
+            const form = document.getElementById('finance-form');
 
-        function handleCsvFile(file) {
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const text = e.target.result;
-                const rows = text.split(/\r?\n/).filter(r => r.trim() !== "").map(row => {
-                    const sep = row.includes(";") ? ";" : (row.includes("\t") ? "\t" : ",");
-                    return row.split(sep).map(cell => cell.replace(/^["']|["']$/g, '').trim());
-                });
-                if (rows.length > 0) { csvRawData = rows; showCsvMapping(); }
-            };
-            reader.readAsText(file, "ISO-8859-1");
+            form.reset();
+            document.getElementById('date').valueAsDate = new Date();
+
+            if (id) {
+                const tx = transactions.find(t => t.id === id);
+                title.textContent = "Editar Movimiento";
+                saveBtn.textContent = "Actualizar";
+                editIdInput.value = id;
+                document.getElementById('description').value = tx.description;
+                document.getElementById('amount').value = tx.amount;
+                document.getElementById('account-select').value = tx.accountId;
+                document.getElementById('category').value = tx.category;
+                document.getElementById('date').value = tx.date;
+                setOpType(tx.type);
+                // Ocultar selector de tipo en edición para evitar descuadres de flujo
+                opSelector.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                title.textContent = "Registrar Movimiento";
+                saveBtn.textContent = "Guardar";
+                editIdInput.value = "";
+                opSelector.classList.remove('opacity-50', 'pointer-events-none');
+                setOpType('expense');
+            }
+            toggleTransactionModal();
         }
 
-        function showCsvMapping() {
-            const headers = csvRawData[0];
-            ['col-date', 'col-desc', 'col-amount'].forEach(id => document.getElementById(id).innerHTML = headers.map((h, i) => `<option value="${i}">${h || `Columna ${i+1}`}</option>`).join(''));
-            headers.forEach((h, i) => {
-                const val = h.toLowerCase();
-                if (val.includes("fec") || val.includes("date")) document.getElementById('col-date').value = i;
-                if (val.includes("conc") || val.includes("desc") || val.includes("mov")) document.getElementById('col-desc').value = i;
-                if (val.includes("imp") || val.includes("amt") || val.includes("val")) document.getElementById('col-amount').value = i;
-            });
-            document.getElementById('csv-step-1').classList.add('hidden');
-            document.getElementById('csv-step-2').classList.remove('hidden');
-            updateCsvPreview();
-            ['col-date', 'col-desc', 'col-amount'].forEach(id => document.getElementById(id).onchange = updateCsvPreview);
-        }
+        document.getElementById('finance-form').onsubmit = (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('edit-transaction-id').value;
+            const desc = document.getElementById('description').value;
+            const amt = parseFloat(document.getElementById('amount').value);
+            const accId = document.getElementById('account-select').value;
+            const cat = document.getElementById('category').value;
+            const date = document.getElementById('date').value;
+            const isRec = document.getElementById('is-recurring-template').checked;
 
-        function updateCsvPreview() {
-            const dIdx = document.getElementById('col-date').value, cIdx = document.getElementById('col-desc').value, aIdx = document.getElementById('col-amount').value;
-            document.getElementById('csv-preview-body').innerHTML = csvRawData.slice(1, 6).map(row => row.length < 2 ? "" : `<tr><td class="p-2 border-b"><b>${row[dIdx]||"?"}</b> - ${(row[cIdx]||"?").substring(0,30)}... <span class="float-right font-bold">${row[aIdx]||"0"}€</span></td></tr>`).join('');
-        }
+            if (editId) {
+                // Modo Edición
+                const idx = transactions.findIndex(t => t.id == editId);
+                transactions[idx] = { ...transactions[idx], description: desc, amount: amt, accountId: accId, category: cat, date: date };
+                showToast("Movimiento actualizado");
+            } else {
+                // Modo Nuevo
+                if (isRec) recurring.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, accountId: accId });
+                
+                if (currentOpType === 'transfer') {
+                    const targetId = document.getElementById('transfer-target').value, tid = Date.now();
+                    transactions.push({ id: tid, description: `Traspaso: ${desc}`, amount: amt, type: 'expense', category: 'Traspaso', date, accountId: accId, isTransfer: true });
+                    transactions.push({ id: tid + 1, description: `Traspaso: ${desc}`, amount: amt, type: 'income', category: 'Traspaso', date, accountId: targetId, isTransfer: true });
+                } else {
+                    transactions.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, date, accountId: accId });
+                }
+                showToast("Movimiento guardado");
+            }
+            saveData(); toggleTransactionModal();
+        };
 
-        function processCsv() {
-            const dIdx = document.getElementById('col-date').value, cIdx = document.getElementById('col-desc').value, aIdx = document.getElementById('col-amount').value, accId = document.getElementById('csv-account-target').value;
-            let count = 0, duplicates = 0;
-            csvRawData.slice(1).forEach(row => {
-                if (!row[dIdx] || !row[aIdx]) return;
-                let cleanAmt = row[aIdx].replace(/\./g, '').replace(',', '.'), amt = parseFloat(cleanAmt); if (isNaN(amt)) return;
-                const desc = row[cIdx] || "Importación";
-                let dp = row[dIdx].split(/[\/\-\.]/), dateIso = dp.length === 3 ? (dp[0].length===4 ? `${dp[0]}-${dp[1]}-${dp[2]}` : `${dp[2]}-${dp[1]}-${dp[0]}`) : row[dIdx];
-                if (!transactions.some(t => t.accountId === accId && t.amount === Math.abs(amt) && t.date === dateIso && t.description === desc)) {
-                    transactions.push({ id: Date.now() + Math.random(), description: desc, amount: Math.abs(amt), type: amt >= 0 ? 'income' : 'expense', category: 'Importado', date: dateIso, accountId: accId });
-                    count++;
-                } else duplicates++;
-            });
-            saveData(); toggleCsvModal(); showToast(`Importados ${count}. Ignorados ${duplicates} duplicados.`);
-        }
-
-        // --- Cuentas ---
+        // --- Cuentas y Ajustes ---
         function toggleAccountModal() { document.getElementById('modal-account').classList.toggle('hidden'); }
         function openAccountModal(id = null) {
             const initialContainer = document.getElementById('initial-balance-container');
@@ -397,13 +407,11 @@
                 document.getElementById('account-modal-title').textContent = "Nueva Cuenta";
                 document.getElementById('edit-account-id').value = "";
                 document.getElementById('acc-name').value = "";
-                document.getElementById('acc-performance').value = 0;
                 document.getElementById('acc-initial-balance').value = 0;
                 initialContainer.classList.remove('hidden');
             }
             toggleAccountModal();
         }
-
         function handleAccountAction() {
             const id = document.getElementById('edit-account-id').value, name = document.getElementById('acc-name').value, type = document.getElementById('acc-type').value, perf = parseFloat(document.getElementById('acc-performance').value) || 0;
             if (!name) return;
@@ -418,18 +426,65 @@
             }
             saveData(); toggleAccountModal(); updateSelects();
         }
+        function deleteAccount(id) { if (confirm("¿Borrar cuenta y movimientos?")) { accounts = accounts.filter(a => a.id !== id); transactions = transactions.filter(t => t.accountId !== id); saveData(); updateSelects(); } }
 
-        function deleteAccount(id) {
-            if (confirm("¿Borrar cuenta y movimientos?")) {
-                accounts = accounts.filter(a => a.id !== id); transactions = transactions.filter(t => t.accountId !== id);
-                if (settings.emergencyAccountId === id) settings.emergencyAccountId = accounts[0]?.id || '';
-                if (settings.sweepAccountId === id) settings.sweepAccountId = accounts[0]?.id || '';
-                saveData(); updateSelects();
-            }
+        // --- CSV ---
+        function toggleCsvModal() { document.getElementById('modal-csv').classList.toggle('hidden'); resetCsvSteps(); }
+        function resetCsvSteps() { document.getElementById('csv-step-1').classList.remove('hidden'); document.getElementById('csv-step-2').classList.add('hidden'); csvRawData = []; }
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.onclick = () => document.getElementById('csv-file').click();
+        dropZone.ondrop = (e) => { e.preventDefault(); handleCsvFile(e.dataTransfer.files[0]); };
+        document.getElementById('csv-file').onchange = (e) => handleCsvFile(e.target.files[0]);
+        function handleCsvFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result;
+                const rows = text.split(/\r?\n/).filter(r => r.trim() !== "").map(row => {
+                    const sep = row.includes(";") ? ";" : (row.includes("\t") ? "\t" : ",");
+                    return row.split(sep).map(cell => cell.replace(/^["']|["']$/g, '').trim());
+                });
+                if (rows.length > 0) { csvRawData = rows; showCsvMapping(); }
+            };
+            reader.readAsText(file, "ISO-8859-1");
+        }
+        function showCsvMapping() {
+            const headers = csvRawData[0];
+            ['col-date', 'col-desc', 'col-amount'].forEach(id => document.getElementById(id).innerHTML = headers.map((h, i) => `<option value="${i}">${h || `Columna ${i+1}`}</option>`).join(''));
+            document.getElementById('csv-step-1').classList.add('hidden');
+            document.getElementById('csv-step-2').classList.remove('hidden');
+            updateSelects();
+        }
+        function processCsv() {
+            const dIdx = document.getElementById('col-date').value, cIdx = document.getElementById('col-desc').value, aIdx = document.getElementById('col-amount').value, accId = document.getElementById('csv-account-target').value;
+            let count = 0;
+            csvRawData.slice(1).forEach(row => {
+                if (!row[dIdx] || !row[aIdx]) return;
+                let cleanAmt = row[aIdx].replace(/\./g, '').replace(',', '.'), amt = parseFloat(cleanAmt); if (isNaN(amt)) return;
+                let dp = row[dIdx].split(/[\/\-\.]/), dateIso = dp.length === 3 ? (dp[0].length===4 ? `${dp[0]}-${dp[1]}-${dp[2]}` : `${dp[2]}-${dp[1]}-${dp[0]}`) : row[dIdx];
+                if (!transactions.some(t => t.accountId === accId && t.amount === Math.abs(amt) && t.date === dateIso && t.description === row[cIdx])) {
+                    transactions.push({ id: Date.now() + Math.random(), description: row[cIdx] || "Importado", amount: Math.abs(amt), type: amt >= 0 ? 'income' : 'expense', category: 'Importado', date: dateIso, accountId: accId });
+                    count++;
+                }
+            });
+            saveData(); toggleCsvModal(); showToast(`Importados ${count} movimientos.`);
         }
 
-        // --- UI ---
+        // --- UI y Metas ---
         function calculateBalance(id) { return transactions.filter(t => t.accountId === id).reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0); }
+        function toggleGoalModal() { document.getElementById('modal-goal').classList.toggle('hidden'); }
+        function toggleSettingsModal() { 
+            document.getElementById('emergency-input').value = settings.emergencyFund;
+            document.getElementById('min-checking-input').value = settings.minChecking;
+            document.getElementById('modal-settings').classList.toggle('hidden'); 
+        }
+        function saveSettings() {
+            settings.emergencyFund = parseFloat(document.getElementById('emergency-input').value) || 0;
+            settings.minChecking = parseFloat(document.getElementById('min-checking-input').value) || 0;
+            settings.emergencyAccountId = document.getElementById('emergency-account-select').value;
+            settings.sweepAccountId = document.getElementById('sweep-account-select').value;
+            saveData(); toggleSettingsModal();
+        }
 
         function updateUI() {
             const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -451,94 +506,64 @@
             document.getElementById('month-expense').textContent = `${thisM.filter(t=>t.type==='expense'&&!t.isTransfer).reduce((s,t)=>s+t.amount,0).toFixed(2)} €`;
             document.getElementById('month-balance').textContent = `${(thisM.filter(t=>t.type==='income'&&!t.isTransfer).reduce((s,t)=>s+t.amount,0) - thisM.filter(t=>t.type==='expense'&&!t.isTransfer).reduce((s,t)=>s+t.amount,0)).toFixed(2)} €`;
 
-            renderTable(thisM); renderTemplates(); renderGoalsCascada(av); renderCharts(thisM); checkAutomation();
+            renderTable(thisM); renderTemplates(); renderGoalsCascada(av); renderCharts(thisM);
         }
 
-        // Utils
-        function updateSelects() {
-            const opts = accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
-            ['account-select','transfer-target','emergency-account-select','sweep-account-select','csv-account-target'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = opts; });
-            document.getElementById('category').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        function renderTable(txs) {
+            document.getElementById('transaction-list').innerHTML = txs.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>`
+                <tr class="hover:bg-slate-50 group">
+                    <td class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase">${new Date(t.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</td>
+                    <td class="px-8 py-4">
+                        <div class="text-sm font-bold text-slate-800">${t.description}</div>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase">${accounts.find(a=>a.id===t.accountId)?.name} • ${t.category}</div>
+                    </td>
+                    <td class="px-8 py-4 text-right font-black text-sm ${t.type==='income'?'text-emerald-600':'text-rose-500'}">${t.type==='income'?'+':'-'}${t.amount.toFixed(2)}€</td>
+                    <td class="px-8 py-4 text-center">
+                        <div class="flex gap-2 justify-center">
+                            <button onclick="openTransactionModal(${t.id})" class="text-slate-200 group-hover:text-indigo-500 transition-colors"><i class="fas fa-edit text-xs"></i></button>
+                            <button onclick="deleteTransaction(${t.id})" class="text-slate-200 group-hover:text-rose-500 transition-colors"><i class="fas fa-trash-alt text-xs"></i></button>
+                        </div>
+                    </td>
+                </tr>`).join('');
+            document.getElementById('empty-state').classList.toggle('hidden', txs.length > 0);
         }
-        function renderTable(txs) { document.getElementById('transaction-list').innerHTML = txs.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>`<tr class="hover:bg-slate-50 group"><td class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase">${new Date(t.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</td><td class="px-8 py-4"><div class="text-sm font-bold text-slate-800">${t.description}</div><div class="text-[9px] text-slate-400 font-bold uppercase">${accounts.find(a=>a.id===t.accountId)?.name} • ${t.category}</div></td><td class="px-8 py-4 text-right font-black text-sm ${t.type==='income'?'text-emerald-600':'text-rose-500'}">${t.type==='income'?'+':'-'}${t.amount.toFixed(2)}€</td><td class="px-8 py-4 text-center"><button onclick="deleteTransaction(${t.id})" class="text-slate-200 group-hover:text-rose-500"><i class="fas fa-trash-alt text-xs"></i></button></td></tr>`).join(''); document.getElementById('empty-state').classList.toggle('hidden', txs.length > 0); }
-        function renderTemplates() { document.getElementById('recurring-templates-container').innerHTML = recurring.map(t => `<div class="flex justify-between items-center bg-slate-50 px-4 py-2 rounded-xl group font-bold"><p class="text-[11px] text-slate-600 truncate">${t.description}</p><button onclick="deleteTemplate(${t.id})" class="text-slate-200 group-hover:text-rose-400"><i class="fas fa-times text-[10px]"></i></button></div>`).join(''); }
+
+        function renderTemplates() { document.getElementById('recurring-templates-container').innerHTML = recurring.map(t => `<div class="flex justify-between items-center bg-slate-50 px-4 py-2 rounded-xl group font-bold mb-1"><p class="truncate mr-2">${t.description}</p><button onclick="deleteTemplate(${t.id})" class="text-slate-200 group-hover:text-rose-400"><i class="fas fa-times"></i></button></div>`).join(''); }
+        
         function renderGoalsCascada(available) {
-            let tempAv = available; document.getElementById('goals-container').innerHTML = goals.length === 0 ? '<p class="text-center py-8 opacity-20 text-xs">SIN METAS</p>' : '';
+            let tempAv = available; document.getElementById('goals-container').innerHTML = goals.length === 0 ? '<p class="text-center py-8 opacity-20 text-xs font-bold">SIN METAS</p>' : '';
             goals.forEach((g, idx) => {
                 const filled = Math.min(tempAv, g.target), perc = (filled/g.target)*100; tempAv -= filled; const done = perc >= 100;
-                document.getElementById('goals-container').innerHTML += `<div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm relative group" draggable="true" ondragstart="dragSourceIndex=${idx}" ondrop="handleDrop(event, ${idx})" ondragover="event.preventDefault()"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-700">${g.name}</p><p class="text-xs font-black ${done?'text-emerald-500':'text-indigo-600'}">${perc.toFixed(0)}%</p></div><div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-4"><div class="h-full ${done?'bg-emerald-500':'bg-indigo-500'} progress-bar" style="width: ${perc}%"></div></div><div class="flex justify-between items-center text-[9px] font-bold uppercase"><button onclick="deleteGoal(${g.id})" class="text-slate-300 hover:text-rose-500">Eliminar</button>${done?`<button onclick="completeGoal(${g.id},'${g.name}',${g.target})" class="bg-emerald-600 text-white px-3 py-1 rounded-lg shadow-sm">COBRAR</button>`:`<span class="text-slate-400">Restan ${(g.target-filled).toFixed(0)}€</span>`}</div></div>`;
+                document.getElementById('goals-container').innerHTML += `<div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm relative group" draggable="true" ondragstart="dragSourceIndex=${idx}" ondrop="handleDrop(event, ${idx})" ondragover="event.preventDefault()"><div class="flex justify-between items-start mb-2"><p class="text-xs font-bold text-slate-700">${g.name}</p><p class="text-xs font-black ${done?'text-emerald-500':'text-indigo-600'}">${perc.toFixed(0)}%</p></div><div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-4"><div class="h-full ${done?'bg-emerald-500':'bg-indigo-500'} progress-bar" style="width: ${perc}%"></div></div><div class="flex justify-between items-center text-[9px] font-bold uppercase"><button onclick="deleteGoal(${g.id})" class="text-slate-300 hover:text-rose-500">Eliminar</button>${done?`<button onclick="completeGoal(${g.id},'${g.name}',${g.target})" class="bg-emerald-600 text-white px-3 py-1 rounded-lg">COBRAR</button>`:`<span class="text-slate-400">Restan ${(g.target-filled).toFixed(0)}€</span>`}</div></div>`;
             });
         }
+
         function renderCharts(txs) {
             const ctx = document.getElementById('categoryChart')?.getContext('2d'); if(!ctx) return;
             const exp = txs.filter(t=>t.type==='expense'&&!t.isTransfer), cats = [...new Set(exp.map(t=>t.category))];
             const data = cats.map(c=>exp.filter(t=>t.category===c).reduce((s,t)=>s+t.amount,0));
             if(catChart) catChart.destroy();
-            catChart = new Chart(ctx, { type: 'doughnut', data: { labels: cats, datasets: [{ data, backgroundColor: ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6'], borderWidth: 4 }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } }, cutout: '80%' } });
+            catChart = new Chart(ctx, { type: 'doughnut', data: { labels: cats, datasets: [{ data, backgroundColor: ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#94a3b8'], borderWidth: 4 }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } }, cutout: '80%' } });
         }
 
-        // Logic
+        function updateSelects() {
+            const opts = accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+            ['account-select','transfer-target','emergency-account-select','sweep-account-select','csv-account-target'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = opts; });
+            document.getElementById('category').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
         function changeMonth(dir) { currentMonth += dir; if(currentMonth<0){currentMonth=11;currentYear--} if(currentMonth>11){currentMonth=0;currentYear++} updateUI(); }
-        function toggleTransactionModal() { document.getElementById('modal-transaction').classList.toggle('hidden'); }
-        function toggleGoalModal() { document.getElementById('modal-goal').classList.toggle('hidden'); }
-        function toggleSettingsModal() { document.getElementById('modal-settings').classList.toggle('hidden'); }
         function setOpType(t) { currentOpType = t; ['expense','income','transfer'].forEach(x=>document.getElementById('btn-'+x).className = (x===t)?"flex-1 py-2 text-xs rounded-xl bg-white shadow-sm font-black text-indigo-600 uppercase":"flex-1 py-2 text-xs rounded-xl font-black text-slate-400 uppercase"); document.getElementById('transfer-target-div').classList.toggle('hidden', t!=='transfer'); }
-        function deleteTransaction(id) { transactions = transactions.filter(t=>t.id!==id); saveData(); }
+        function deleteTransaction(id) { if(confirm("¿Borrar este movimiento?")) { transactions = transactions.filter(t=>t.id!==id); saveData(); } }
         function deleteTemplate(id) { recurring = recurring.filter(t=>t.id!==id); saveData(); }
         function deleteGoal(id) { goals = goals.filter(g=>g.id!==id); saveData(); }
         function handleDrop(e, tIdx) { e.preventDefault(); if (dragSourceIndex === tIdx) return; const temp = goals.splice(dragSourceIndex, 1)[0]; goals.splice(tIdx, 0, temp); saveData(); }
         function addNewGoal() { const n = document.getElementById('goal-name').value, t = parseFloat(document.getElementById('goal-target').value); if(n && t) { goals.push({id:Date.now(), name:n, target:t}); saveData(); toggleGoalModal(); } }
-        function saveSettings() {
-            settings.emergencyFund = parseFloat(document.getElementById('emergency-input').value) || 0;
-            settings.minChecking = parseFloat(document.getElementById('min-checking-input').value) || 0;
-            settings.emergencyAccountId = document.getElementById('emergency-account-select').value;
-            settings.sweepAccountId = document.getElementById('sweep-account-select').value;
-            saveData(); toggleSettingsModal();
-        }
-        function checkAutomation() { 
-            const alert = document.getElementById('automation-alert');
-            const miss = recurring.some(r => !transactions.filter(t=>new Date(t.date)>=new Date(currentYear, currentMonth, 1)).some(d => d.description === r.description));
-            if(alert) alert.classList.toggle('hidden', !miss);
-        }
         function showToast(m, c="indigo") { const t = document.getElementById('toast'); t.textContent = m; t.className = `fixed bottom-6 right-6 bg-${c==='red'?'rose-600':c==='emerald'?'emerald-600':'slate-900'} text-white px-8 py-4 rounded-2xl shadow-2xl transition-all opacity-100 z-[200]`; setTimeout(() => t.classList.add('opacity-0'), 3500); }
+        function completeGoal(id, name, amount) { const acc = accounts.find(a => a.id === settings.emergencyAccountId) || accounts.find(a => a.type === 'savings'); if(!acc) return showToast("No hay cuenta para pagar", "red"); if(confirm(`¿Cobrar meta? Se descontará de ${acc.name}`)) { transactions.push({ id: Date.now(), description: `Logro: ${name}`, amount, type: 'expense', category: 'Metas', date: new Date().toISOString().split('T')[0], accountId: acc.id }); goals = goals.filter(g => g.id !== id); saveData(); } }
 
-        async function applyAutomation() {
-            const mS = new Date(currentYear, currentMonth, 1), ds = `${currentYear}-${(currentMonth+1).toString().padStart(2,'0')}-01`, done = transactions.filter(t=>new Date(t.date)>=mS);
-            recurring.forEach(r => { if(!done.some(d => d.description === r.description)) transactions.push({...r, id:Date.now()+Math.random(), date:ds}); });
-            accounts.forEach(acc => {
-                if(acc.performance > 0) {
-                    const desc = `Rendimiento: ${acc.name} (${currentMonth+1}/${currentYear})`;
-                    if(!done.some(d => d.description === desc)) {
-                        const prev = transactions.filter(t=>new Date(t.date)<mS && t.accountId === acc.id).reduce((s,t)=>s+(t.type==='income'?t.amount:-t.amount), 0);
-                        if(prev>0) transactions.push({id:Date.now()+Math.random(), description:desc, amount:(prev*(acc.performance/100))/12, type:'income', category:'Intereses', date:ds, accountId:acc.id});
-                    }
-                }
-            });
-            const src = accounts.find(a=>a.id===settings.sweepAccountId), tgt = accounts.find(a=>a.id===settings.emergencyAccountId) || accounts.find(a=>a.type==='savings');
-            if(src && tgt && settings.minChecking > 0) { const bal = calculateBalance(src.id); if(bal > settings.minChecking) { const diff = bal - settings.minChecking, tid = Date.now(); transactions.push({id:tid, description:'Barrido Automático', amount:diff, type:'expense', category:'Traspaso', date:ds, accountId:src.id, isTransfer:true}); transactions.push({id:tid+1, description:'Barrido Automático', amount:diff, type:'income', category:'Traspaso', date:ds, accountId:tgt.id, isTransfer:true}); } }
-            saveData(); showToast("Automatización completada");
-        }
-
-        document.getElementById('finance-form').onsubmit = (e) => {
-            e.preventDefault(); const desc = document.getElementById('description').value, amt = parseFloat(document.getElementById('amount').value);
-            const accId = document.getElementById('account-select').value, cat = document.getElementById('category').value, date = document.getElementById('date').value;
-            if (document.getElementById('is-recurring-template').checked) recurring.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, accountId: accId });
-            if (currentOpType === 'transfer') {
-                const targetId = document.getElementById('transfer-target').value, tid = Date.now();
-                transactions.push({ id: tid, description: `Traspaso: ${desc}`, amount: amt, type: 'expense', category: 'Traspaso', date, accountId: accId, isTransfer: true });
-                transactions.push({ id: tid + 1, description: `Traspaso: ${desc}`, amount: amt, type: 'income', category: 'Traspaso', date, accountId: targetId, isTransfer: true });
-            } else { transactions.push({ id: Date.now(), description: desc, amount: amt, type: currentOpType, category: cat, date, accountId: accId }); }
-            saveData(); toggleTransactionModal(); e.target.reset();
-        };
-
-        function completeGoal(id, name, amount) {
-            const acc = accounts.find(a => a.id === settings.emergencyAccountId) || accounts.find(a => a.type === 'savings');
-            if(!acc) return showToast("No hay cuenta para pagar", "red");
-            if(confirm(`¿Cobrar meta? Se descontará de ${acc.name}`)) {
-                transactions.push({ id: Date.now(), description: `Logro: ${name}`, amount, type: 'expense', category: 'Metas', date: new Date().toISOString().split('T')[0], accountId: acc.id });
-                goals = goals.filter(g => g.id !== id); saveData();
-            }
-        }
+        // Inicialización
+        window.onload = () => { if(authString) fetchData(); };
     </script>
 </body>
 </html>
